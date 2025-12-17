@@ -58,11 +58,19 @@ func update_unit_button_states() -> void:
 
 		var is_producing = (production_building.current_production == unit_id)
 		var progress = 0.0
+		var queued = get_queue_count(production_building, unit_id)
 
 		if is_producing:
 			progress = production_building.get_production_percent()
 
-		btn.set_production_state(is_producing, progress, false)
+		btn.set_production_state(is_producing, progress, false, queued)
+
+func get_queue_count(building: Building, item_id: String) -> int:
+	var count = 0
+	for item in building.production_queue:
+		if item["id"] == item_id:
+			count += 1
+	return count
 
 func _on_credits_changed(faction: int, amount: int) -> void:
 	if faction == GameManager.player_faction:

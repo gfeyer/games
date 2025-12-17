@@ -10,6 +10,7 @@ var is_producing: bool = false
 var is_ready: bool = false
 var progress: float = 0.0
 var pulse_time: float = 0.0
+var queue_count: int = 0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(160, 32)
@@ -21,10 +22,11 @@ func setup(id: String, data: Dictionary) -> void:
 	item_cost = data.get("cost", 0)
 	queue_redraw()
 
-func set_production_state(producing: bool, prod_progress: float = 0.0, ready: bool = false) -> void:
+func set_production_state(producing: bool, prod_progress: float = 0.0, ready: bool = false, queued: int = 0) -> void:
 	is_producing = producing
 	progress = prod_progress
 	is_ready = ready
+	queue_count = queued
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -68,7 +70,12 @@ func _draw() -> void:
 	if is_ready:
 		text = "READY - " + item_name
 	elif is_producing:
-		text = item_name + " " + str(int(progress * 100)) + "%"
+		if queue_count > 1:
+			text = item_name + " " + str(int(progress * 100)) + "% (" + str(queue_count) + ")"
+		else:
+			text = item_name + " " + str(int(progress * 100)) + "%"
+	elif queue_count > 0:
+		text = item_name + " (" + str(queue_count) + ")"
 
 	var text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 	var text_pos = Vector2((size.x - text_size.x) / 2, (size.y + text_size.y) / 2 - 4)

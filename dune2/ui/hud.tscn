@@ -7,7 +7,7 @@
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
-[node name="SidebarPanel" type="PanelContainer" parent="."]
+[node name="RightPanel" type="PanelContainer" parent="."]
 anchors_preset = 11
 anchor_left = 1.0
 anchor_right = 1.0
@@ -16,11 +16,21 @@ offset_left = -200.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="Sidebar" type="Control" parent="SidebarPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RightPanel"]
 layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Minimap" type="Control" parent="RightPanel/VBoxContainer"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+script = ExtResource("3_minimap")
+
+[node name="Sidebar" type="Control" parent="RightPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
 script = ExtResource("2_sidebar")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="SidebarPanel/Sidebar"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RightPanel/VBoxContainer/Sidebar"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -29,54 +39,41 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="CreditsLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="CreditsLabel" type="Label" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 0.5, 1)
 theme_override_font_sizes/font_size = 20
 text = "Credits: 2000"
 
-[node name="BuildLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="BuildLabel" type="Label" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
 theme_override_font_sizes/font_size = 14
 text = "BUILD:"
 
-[node name="BuildButtons" type="VBoxContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="BuildButtons" type="VBoxContainer" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="UnitsLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="UnitsLabel" type="Label" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
 theme_override_font_sizes/font_size = 14
 text = "UNITS:"
 
-[node name="UnitButtons" type="VBoxContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="UnitButtons" type="VBoxContainer" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="InfoPanel" type="PanelContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+[node name="InfoPanel" type="PanelContainer" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="InfoLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer/InfoPanel"]
+[node name="InfoLabel" type="Label" parent="RightPanel/VBoxContainer/Sidebar/VBoxContainer/InfoPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
 theme_override_font_sizes/font_size = 12
 text = "Info"
-
-[node name="MinimapPanel" type="PanelContainer" parent="."]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -400.0
-offset_bottom = 200.0
-grow_horizontal = 0
-
-[node name="Minimap" type="Control" parent="MinimapPanel"]
-custom_minimum_size = Vector2(180, 180)
-layout_mode = 2
-script = ExtResource("3_minimap")
 
 [node name="GameOverPanel" type="PanelContainer" parent="."]
 visible = false

@@ -13,8 +13,9 @@ func _on_unit_produced(unit_type: String) -> void:
 	pass
 
 func get_spawn_position() -> Vector2:
-	# Spawn position is at the side of the factory
-	return global_position + Vector2(grid_size.x * Constants.TILE_SIZE / 2 + 16, 0)
+	# Spawn position is at the side of the factory (with random offset to prevent stacking)
+	var random_offset = Vector2(randf_range(0, 16), randf_range(-16, 16))
+	return global_position + Vector2(grid_size.x * Constants.TILE_SIZE / 2 + 32, 0) + random_offset
 
 func set_rally_point(pos: Vector2) -> void:
 	rally_point = pos

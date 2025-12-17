@@ -3,8 +3,8 @@ extends CanvasLayer
 signal build_requested(building_type: String)
 signal minimap_clicked(world_position: Vector2)
 
-@onready var sidebar: Sidebar = $SidebarPanel/Sidebar
-@onready var minimap: Minimap = $MinimapPanel/Minimap
+@onready var sidebar: Sidebar = $RightPanel/VBoxContainer/Sidebar
+@onready var minimap: Minimap = $RightPanel/VBoxContainer/Minimap
 @onready var game_over_panel: PanelContainer = $GameOverPanel
 @onready var game_over_label: Label = $GameOverPanel/VBoxContainer/ResultLabel
 

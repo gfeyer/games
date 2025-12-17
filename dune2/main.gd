@@ -17,6 +17,7 @@ const TankScene = preload("res://units/tank.tscn")
 @onready var units_container: Node2D = $Units
 @onready var hud: CanvasLayer = $HUD
 @onready var ai_controller: AIController = $AIController
+@onready var selection_box: Node2D = $SelectionBox
 
 # Selection
 var selection_start: Vector2 = Vector2.ZERO
@@ -52,7 +53,6 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	update_fog_of_war()
-	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -103,6 +103,7 @@ func update_selection_rect(pos: Vector2) -> void:
 	var top_left = Vector2(min(selection_start.x, pos.x), min(selection_start.y, pos.y))
 	var size = Vector2(abs(pos.x - selection_start.x), abs(pos.y - selection_start.y))
 	selection_rect = Rect2(top_left, size)
+	selection_box.set_selection(selection_rect, is_selecting)
 
 func finish_selection(pos: Vector2) -> void:
 	is_selecting = false
@@ -128,6 +129,8 @@ func finish_selection(pos: Vector2) -> void:
 		select_in_rect(selection_rect)
 
 	selection_rect = Rect2()
+	selection_start = Vector2.ZERO
+	selection_box.set_selection(selection_rect, false)
 
 func select_at_point(pos: Vector2) -> void:
 	# First check for units
@@ -166,6 +169,9 @@ func issue_command(pos: Vector2) -> void:
 	# Check if clicking on enemy
 	var target = get_enemy_at(pos)
 
+	# Check if clicking on friendly refinery (for harvesters)
+	var refinery = get_friendly_refinery_at(pos)
+
 	for unit in GameManager.selected_units:
 		if not is_instance_valid(unit):
 			continue
@@ -173,10 +179,22 @@ func issue_command(pos: Vector2) -> void:
 		if target:
 			unit.attack(target)
 		elif unit is Harvester:
-			# Harvesters go harvest spice
-			unit.harvest_at(grid_pos)
+			if refinery:
+				# Send harvester to specific refinery
+				unit.force_return_to_refinery(refinery)
+			else:
+				# Harvesters go harvest spice
+				unit.harvest_at(grid_pos)
 		else:
 			unit.move_to(pos)
+
+func get_friendly_refinery_at(pos: Vector2) -> Refinery:
+	for building in get_tree().get_nodes_in_group("player_buildings"):
+		if building is Refinery:
+			var building_rect = get_building_rect(building)
+			if building_rect.has_point(pos):
+				return building
+	return null
 
 func get_enemy_at(pos: Vector2) -> Node2D:
 	for unit in get_tree().get_nodes_in_group("enemy_units"):
@@ -336,12 +354,6 @@ func update_fog_of_war() -> void:
 	for unit in get_tree().get_nodes_in_group("player_units"):
 		var grid_pos = Constants.world_to_grid(unit.global_position)
 		fog_of_war.update_vision_source(unit.vision_id, grid_pos)
-
-func _draw() -> void:
-	# Draw selection rectangle (white)
-	if is_selecting and selection_rect.size.length() > 5:
-		draw_rect(selection_rect, Color(1, 1, 1, 0.2))
-		draw_rect(selection_rect, Color(1, 1, 1, 0.8), false, 2.0)
 
 func _on_build_requested(building_type: String) -> void:
 	# Check if player has a construction yard and it's ready

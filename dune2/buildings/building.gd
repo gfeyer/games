@@ -46,6 +46,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if current_production != "" and is_placed:
 		process_production(delta)
+		queue_redraw()  # Update production progress bar visual
 
 func setup(type: String, pos: Vector2i, owner_faction: int) -> void:
 	building_type = type

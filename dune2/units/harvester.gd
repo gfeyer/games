@@ -141,6 +141,12 @@ func return_to_refinery() -> void:
 	returning_to_refinery.emit()
 	move_to(target_refinery.get_dock_position())
 
+func force_return_to_refinery(refinery: Refinery) -> void:
+	target_refinery = refinery
+	state = HarvesterState.RETURNING
+	returning_to_refinery.emit()
+	move_to(target_refinery.get_dock_position())
+
 func find_nearest_refinery() -> Refinery:
 	var refineries = GameManager.get_refineries(faction)
 	if refineries.is_empty():

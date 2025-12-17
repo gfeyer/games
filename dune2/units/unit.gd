@@ -75,7 +75,10 @@ func setup(type: String, pos: Vector2, owner_faction: int) -> void:
 	GameManager.register_unit(self, faction)
 
 func move_to(pos: Vector2) -> void:
-	target_position = pos
+	# Clamp target position to map bounds with margin
+	var margin = 16.0  # Keep units slightly inside the map
+	var map_size = Vector2(Constants.MAP_WIDTH, Constants.MAP_HEIGHT) * Constants.TILE_SIZE
+	target_position = pos.clamp(Vector2(margin, margin), map_size - Vector2(margin, margin))
 	is_moving = true
 	attack_target = null
 
