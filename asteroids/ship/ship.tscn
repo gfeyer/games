@@ -1,0 +1,64 @@
+[gd_scene load_steps=6 format=3 uid="uid://dqwerty12345"]
+
+[ext_resource type="Script" path="res://ship/ship.gd" id="1_ship"]
+
+[sub_resource type="Gradient" id="Gradient_thrust"]
+colors = PackedColorArray(1, 0.5, 0, 1, 1, 0.2, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_thrust"]
+gradient = SubResource("Gradient_thrust")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_thrust"]
+emission_shape = 3
+emission_box_extents = Vector3(3, 1, 1)
+direction = Vector3(0, 1, 0)
+spread = 15.0
+initial_velocity_min = 100.0
+initial_velocity_max = 150.0
+gravity = Vector3(0, 0, 0)
+scale_min = 2.0
+scale_max = 4.0
+color_ramp = SubResource("GradientTexture1D_thrust")
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_ship"]
+points = PackedVector2Array(0, -20, 15, 20, 0, 12, -15, 20)
+
+[node name="Ship" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_ship")
+
+[node name="ShipPolygon" type="Polygon2D" parent="."]
+color = Color(0, 0.9, 1, 1)
+polygon = PackedVector2Array(0, -20, 15, 20, 0, 12, -15, 20)
+
+[node name="ShipOutline" type="Line2D" parent="."]
+points = PackedVector2Array(0, -20, 15, 20, 0, 12, -15, 20, 0, -20)
+width = 2.0
+default_color = Color(0, 1, 1, 1)
+
+[node name="ShipGlow" type="Line2D" parent="."]
+points = PackedVector2Array(0, -20, 15, 20, 0, 12, -15, 20, 0, -20)
+width = 6.0
+default_color = Color(0, 1, 1, 0.3)
+
+[node name="ThrustParticles" type="GPUParticles2D" parent="."]
+position = Vector2(0, 18)
+emitting = false
+amount = 20
+process_material = SubResource("ParticleProcessMaterial_thrust")
+lifetime = 0.3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("ConvexPolygonShape2D_ship")
+
+[node name="ShootCooldown" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[node name="InvincibilityTimer" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[connection signal="timeout" from="ShootCooldown" to="." method="_on_shoot_cooldown_timeout"]
+[connection signal="timeout" from="InvincibilityTimer" to="." method="_on_invincibility_timer_timeout"]
