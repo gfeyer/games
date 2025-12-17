@@ -6,6 +6,11 @@ signal deselected
 signal destroyed
 signal arrived_at_destination
 
+const ExplosionScene = preload("res://effects/explosion.tscn")
+const ProjectileScene = preload("res://effects/projectile.tscn")
+const MuzzleFlashScene = preload("res://effects/muzzle_flash.tscn")
+const TracerScene = preload("res://effects/tracer.gd")
+
 @export var unit_type: String = "unit"
 @export var faction: int = Constants.Faction.ATREIDES
 
@@ -23,6 +28,7 @@ var target_position: Vector2 = Vector2.ZERO
 var attack_target: Node2D = null
 var is_moving: bool = false
 var attack_cooldown: float = 0.0
+var has_move_order: bool = false  # Player issued move command - don't auto-attack
 
 var vision_id: int = 0
 static var _next_vision_id: int = 0
@@ -30,10 +36,7 @@ static var _next_vision_id: int = 0
 func _ready() -> void:
 	add_to_group("units")
 	add_to_group("selectable")
-	if faction == Constants.Faction.ATREIDES:
-		add_to_group("player_units")
-	else:
-		add_to_group("enemy_units")
+	# Faction groups are set in setup() after faction is assigned
 
 	vision_id = _next_vision_id
 	_next_vision_id += 1
@@ -54,13 +57,52 @@ func _physics_process(delta: float) -> void:
 
 	if attack_target and is_instance_valid(attack_target):
 		process_attack(delta)
+	elif not has_move_order:
+		# Auto-attack: scan for nearby enemies if we can attack (but not if player issued move order)
+		if damage > 0:
+			scan_for_enemies()
 
 	update_vision()
+
+func scan_for_enemies() -> void:
+	var enemy_group = "enemy_units" if faction == Constants.Faction.ATREIDES else "player_units"
+	var sight_distance = sight_range * Constants.TILE_SIZE
+
+	var closest_enemy: Node2D = null
+	var closest_distance: float = sight_distance
+
+	# Check enemy units
+	for enemy in get_tree().get_nodes_in_group(enemy_group):
+		if not is_instance_valid(enemy):
+			continue
+		var distance = global_position.distance_to(enemy.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_enemy = enemy
+
+	# Also check enemy buildings
+	var enemy_building_group = "enemy_buildings" if faction == Constants.Faction.ATREIDES else "player_buildings"
+	for building in get_tree().get_nodes_in_group(enemy_building_group):
+		if not is_instance_valid(building):
+			continue
+		var distance = global_position.distance_to(building.global_position)
+		if distance < closest_distance:
+			closest_distance = distance
+			closest_enemy = building
+
+	if closest_enemy:
+		attack(closest_enemy)
 
 func setup(type: String, pos: Vector2, owner_faction: int) -> void:
 	unit_type = type
 	faction = owner_faction
 	global_position = pos
+
+	# Add to correct faction group
+	if faction == Constants.Faction.ATREIDES:
+		add_to_group("player_units")
+	else:
+		add_to_group("enemy_units")
 
 	if type in Constants.UNITS:
 		unit_data = Constants.UNITS[type]
@@ -74,13 +116,14 @@ func setup(type: String, pos: Vector2, owner_faction: int) -> void:
 
 	GameManager.register_unit(self, faction)
 
-func move_to(pos: Vector2) -> void:
+func move_to(pos: Vector2, player_order: bool = true) -> void:
 	# Clamp target position to map bounds with margin
 	var margin = 16.0  # Keep units slightly inside the map
 	var map_size = Vector2(Constants.MAP_WIDTH, Constants.MAP_HEIGHT) * Constants.TILE_SIZE
 	target_position = pos.clamp(Vector2(margin, margin), map_size - Vector2(margin, margin))
 	is_moving = true
 	attack_target = null
+	has_move_order = player_order  # If player issued this move, don't auto-attack
 
 func move_towards_target(delta: float) -> void:
 	var direction = (target_position - global_position).normalized()
@@ -89,6 +132,7 @@ func move_towards_target(delta: float) -> void:
 	if distance < 5:
 		is_moving = false
 		velocity = Vector2.ZERO
+		has_move_order = false  # Arrived, can auto-attack again
 		arrived_at_destination.emit()
 		return
 
@@ -100,13 +144,14 @@ func move_towards_target(delta: float) -> void:
 
 func attack(target: Node2D) -> void:
 	attack_target = target
+	has_move_order = false  # Attack command overrides move order
 
 	# Move into range if needed
 	var distance = global_position.distance_to(target.global_position)
 	if distance > attack_range * Constants.TILE_SIZE:
 		var direction = (target.global_position - global_position).normalized()
 		var attack_pos = target.global_position - direction * (attack_range - 1) * Constants.TILE_SIZE
-		move_to(attack_pos)
+		move_to(attack_pos, false)  # Internal movement, not a player move order
 
 func process_attack(delta: float) -> void:
 	if not attack_target or not is_instance_valid(attack_target):
@@ -137,13 +182,47 @@ func perform_attack() -> void:
 	if not attack_target or not is_instance_valid(attack_target):
 		return
 
-	if attack_target.has_method("take_damage"):
-		attack_target.take_damage(damage)
+	# Spawn muzzle flash
+	spawn_muzzle_flash()
+
+	# For tanks: spawn projectile (damage dealt on hit)
+	# For infantry: instant damage with tracer
+	if unit_type == "tank":
+		spawn_projectile()
+	else:
+		# Instant hit with tracer effect
+		spawn_tracer()
+		if attack_target.has_method("take_damage"):
+			attack_target.take_damage(damage)
+
+func spawn_muzzle_flash() -> void:
+	var flash = MuzzleFlashScene.instantiate()
+	# Position at front of unit
+	var offset = Vector2(0, -16).rotated(rotation - PI/2)
+	flash.global_position = global_position + offset
+	get_parent().add_child(flash)
+
+func spawn_projectile() -> void:
+	var projectile = ProjectileScene.instantiate()
+	var offset = Vector2(0, -16).rotated(rotation - PI/2)
+	projectile.global_position = global_position + offset
+	projectile.setup(attack_target, damage, faction, 250.0)
+	get_parent().add_child(projectile)
+
+func spawn_tracer() -> void:
+	if not attack_target or not is_instance_valid(attack_target):
+		return
+	var tracer = Node2D.new()
+	tracer.set_script(TracerScene)
+	var offset = Vector2(0, -16).rotated(rotation - PI/2)
+	tracer.setup(global_position + offset, attack_target.global_position)
+	get_parent().add_child(tracer)
 
 func stop() -> void:
 	is_moving = false
 	attack_target = null
 	velocity = Vector2.ZERO
+	has_move_order = false
 
 func take_damage(dmg: int) -> void:
 	current_health -= dmg
@@ -152,9 +231,20 @@ func take_damage(dmg: int) -> void:
 		die()
 
 func die() -> void:
+	# Spawn death explosion
+	spawn_death_explosion()
+
 	destroyed.emit()
 	GameManager.unregister_unit(self, faction)
 	queue_free()
+
+func spawn_death_explosion() -> void:
+	var explosion = ExplosionScene.instantiate()
+	explosion.global_position = global_position
+	# Larger explosion for tanks
+	var size = 25.0 if unit_type == "tank" else 18.0
+	explosion.setup(size, Color(1, 0.5, 0))
+	get_parent().add_child(explosion)
 
 func select() -> void:
 	is_selected = true
@@ -193,7 +283,10 @@ func _draw() -> void:
 	if is_selected:
 		draw_arc(Vector2.ZERO, radius + 4, 0, TAU, 32, Color.WHITE, 2.0)
 
-	# Health bar
+	# Counter-rotate for health bar so it stays horizontal
+	draw_set_transform(Vector2.ZERO, -rotation)
+
+	# Health bar (now stays horizontal)
 	var health_bar_width = radius * 2
 	var health_bar_height = 4
 	var health_bar_pos = Vector2(-radius, -radius - 10)

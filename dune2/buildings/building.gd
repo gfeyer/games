@@ -6,6 +6,8 @@ signal deselected
 signal destroyed
 signal production_complete(what: String)
 
+const ExplosionScene = preload("res://effects/explosion.tscn")
+
 @export var building_type: String = "building"
 @export var faction: int = Constants.Faction.ATREIDES
 
@@ -29,10 +31,7 @@ static var _next_vision_id: int = 1000
 func _ready() -> void:
 	add_to_group("buildings")
 	add_to_group("selectable")
-	if faction == Constants.Faction.ATREIDES:
-		add_to_group("player_buildings")
-	else:
-		add_to_group("enemy_buildings")
+	# Faction groups are set in setup() after faction is assigned
 
 	vision_id = _next_vision_id
 	_next_vision_id += 1
@@ -52,6 +51,12 @@ func setup(type: String, pos: Vector2i, owner_faction: int) -> void:
 	building_type = type
 	grid_position = pos
 	faction = owner_faction
+
+	# Add to correct faction group
+	if faction == Constants.Faction.ATREIDES:
+		add_to_group("player_buildings")
+	else:
+		add_to_group("enemy_buildings")
 
 	if type in Constants.BUILDINGS:
 		building_data = Constants.BUILDINGS[type]
@@ -84,9 +89,28 @@ func take_damage(damage: int) -> void:
 		die()
 
 func die() -> void:
+	spawn_death_explosions()
 	destroyed.emit()
 	GameManager.unregister_building(self, faction)
 	queue_free()
+
+func spawn_death_explosions() -> void:
+	# Spawn multiple explosions to cover the building area
+	var size = Vector2(grid_size) * Constants.TILE_SIZE
+	var num_explosions = grid_size.x * grid_size.y  # One per tile
+
+	for i in range(num_explosions):
+		var explosion = ExplosionScene.instantiate()
+		# Random position within building bounds
+		var offset = Vector2(
+			randf_range(-size.x / 2 + 8, size.x / 2 - 8),
+			randf_range(-size.y / 2 + 8, size.y / 2 - 8)
+		)
+		explosion.global_position = global_position + offset
+		# Larger explosions for buildings, with slight variation
+		var explosion_size = randf_range(25.0, 35.0)
+		explosion.setup(explosion_size, Color(1, 0.5, 0))
+		get_parent().add_child(explosion)
 
 func select() -> void:
 	is_selected = true

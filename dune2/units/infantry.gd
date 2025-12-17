@@ -26,6 +26,9 @@ func _draw() -> void:
 	if is_selected:
 		draw_arc(Vector2.ZERO, 10, 0, TAU, 16, Color.WHITE, 2.0)
 
+	# Counter-rotate for health bar so it stays horizontal
+	draw_set_transform(Vector2.ZERO, -rotation)
+
 	# Health bar
 	var health_bar_width = 16
 	var health_bar_height = 3

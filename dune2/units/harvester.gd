@@ -253,6 +253,9 @@ func _draw() -> void:
 	if is_selected:
 		draw_rect(Rect2(-size / 2 - Vector2(4, 4), size + Vector2(8, 8)), Color.WHITE, false, 2.0)
 
+	# Counter-rotate for health bar so it stays horizontal
+	draw_set_transform(Vector2.ZERO, -rotation)
+
 	# Health bar
 	var health_bar_width = size.x
 	var health_bar_height = 4

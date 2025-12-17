@@ -348,6 +348,17 @@ func _on_building_production_complete(item_id: String, building: Building) -> vo
 		# Building completed - automatically enter placement mode for player
 		if building.faction == GameManager.player_faction and building is ConstructionYard:
 			enter_placement_mode(item_id)
+		# AI buildings are handled by ai_controller via place_building_at
+
+func place_building_at(building_type: String, grid_pos: Vector2i, faction: int) -> Building:
+	# Used by AI to place buildings directly
+	var building_data = Constants.BUILDINGS.get(building_type, {})
+	var size = building_data.get("size", Vector2i(1, 1))
+
+	if not terrain_manager.can_place_building(grid_pos, size):
+		return null
+
+	return spawn_building(building_type, grid_pos, faction)
 
 func update_fog_of_war() -> void:
 	# Update vision from all player units and buildings
