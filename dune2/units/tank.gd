@@ -44,19 +44,21 @@ func _draw() -> void:
 
 	draw_set_transform(Vector2.ZERO, 0)
 
-	# Selection indicator
+	# Selection indicator (rotates with unit)
 	if is_selected:
 		draw_rect(Rect2(-body_size / 2 - Vector2(6, 6), body_size + Vector2(12, 12)), Color.WHITE, false, 2.0)
 
-	# Counter-rotate for health bar so it stays horizontal
-	draw_set_transform(Vector2.ZERO, -rotation)
+	# Health bar - draw in screen space (counter-rotate)
+	var health_bar_width = body_size.x + 8.0
+	var health_bar_height = 4.0
+	var health_bar_y = -body_size.y / 2 - 12
 
-	# Health bar
-	var health_bar_width = body_size.x + 8
-	var health_bar_height = 4
-	var health_bar_pos = Vector2(-health_bar_width / 2, -body_size.y / 2 - 12)
+	# Calculate screen-aligned position
+	var health_bar_pos = Vector2(-health_bar_width / 2, health_bar_y).rotated(-rotation)
 
-	draw_rect(Rect2(health_bar_pos, Vector2(health_bar_width, health_bar_height)), Color(0.2, 0.2, 0.2))
+	draw_set_transform(health_bar_pos, -rotation)
+
+	draw_rect(Rect2(Vector2.ZERO, Vector2(health_bar_width, health_bar_height)), Color(0.2, 0.2, 0.2))
 
 	var health_percent = get_health_percent()
 	var health_color = Constants.COLORS["health_green"]
@@ -65,4 +67,4 @@ func _draw() -> void:
 	elif health_percent < 0.6:
 		health_color = Constants.COLORS["health_yellow"]
 
-	draw_rect(Rect2(health_bar_pos, Vector2(health_bar_width * health_percent, health_bar_height)), health_color)
+	draw_rect(Rect2(Vector2.ZERO, Vector2(health_bar_width * health_percent, health_bar_height)), health_color)

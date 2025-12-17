@@ -53,6 +53,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	update_fog_of_war()
+	update_enemy_visibility()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
@@ -365,6 +366,25 @@ func update_fog_of_war() -> void:
 	for unit in get_tree().get_nodes_in_group("player_units"):
 		var grid_pos = Constants.world_to_grid(unit.global_position)
 		fog_of_war.update_vision_source(unit.vision_id, grid_pos)
+
+func update_enemy_visibility() -> void:
+	# Hide enemy units/buildings that are not in VISIBLE tiles
+	for unit in get_tree().get_nodes_in_group("enemy_units"):
+		var grid_pos = Constants.world_to_grid(unit.global_position)
+		unit.visible = fog_of_war.is_tile_visible(grid_pos)
+
+	for building in get_tree().get_nodes_in_group("enemy_buildings"):
+		var grid_pos = building.grid_position
+		# Building is visible if any of its tiles are visible
+		var is_visible = false
+		for x in range(building.grid_size.x):
+			for y in range(building.grid_size.y):
+				if fog_of_war.is_tile_visible(grid_pos + Vector2i(x, y)):
+					is_visible = true
+					break
+			if is_visible:
+				break
+		building.visible = is_visible
 
 func _on_build_requested(building_type: String) -> void:
 	# Check if player has a construction yard and it's ready
