@@ -1,8 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://b821myv7hqira"]
+[gd_scene load_steps=7 format=3 uid="uid://jbxiftsprlyg"]
 
-[ext_resource type="Script" path="res://game.gd" id="1_game"]
-[ext_resource type="Script" path="res://ball.gd" id="2_ball"]
-[ext_resource type="Script" path="res://paddle.gd" id="3_paddle"]
+[ext_resource type="Script" uid="uid://c7ugk00sfi6vb" path="res://scripts/game.gd" id="1_game"]
+[ext_resource type="Script" uid="uid://c7y4d8hsgub88" path="res://scripts/ball.gd" id="2_ball"]
+[ext_resource type="Script" uid="uid://c1sb2pltfy5jl" path="res://scripts/paddle.gd" id="3_paddle"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ball"]
 
