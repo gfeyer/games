@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games by gfeyer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #7b2cbf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .game-description {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .game-tech {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #00d4ff;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+        }
+
+        footer a {
+            color: #00d4ff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Games Collection</h1>
+            <p class="subtitle">Browser-based games built with Godot 4.5</p>
+        </header>
+
+        <div class="games-grid">
+            <a href="pong/docs/" class="game-card">
+                <div class="game-icon">🏓</div>
+                <h2 class="game-title">Pong</h2>
+                <p class="game-description">Classic Pong game with AI opponent. First to 10 points wins!</p>
+                <div class="game-tech">
+                    <span class="tech-tag">Godot 4.5</span>
+                    <span class="tech-tag">2 Player</span>
+                </div>
+            </a>
+
+            <a href="asteroids/docs/" class="game-card">
+                <div class="game-icon">🚀</div>
+                <h2 class="game-title">Asteroids</h2>
+                <p class="game-description">Destroy asteroids and survive waves of increasing difficulty. Classic arcade action!</p>
+                <div class="game-tech">
+                    <span class="tech-tag">Godot 4.5</span>
+                    <span class="tech-tag">Arcade</span>
+                </div>
+            </a>
+
+            <a href="dune2/docs/" class="game-card">
+                <div class="game-icon">🏜️</div>
+                <h2 class="game-title">Dune 2</h2>
+                <p class="game-description">Real-time strategy game inspired by the classic. Build your base, harvest spice, and defeat the enemy!</p>
+                <div class="game-tech">
+                    <span class="tech-tag">Godot 4.5</span>
+                    <span class="tech-tag">RTS</span>
+                </div>
+            </a>
+        </div>
+
+        <footer>
+            <p>Built with <a href="https://godotengine.org/" target="_blank">Godot Engine</a> | <a href="https://github.com/gfeyer/games" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+</body>
+</html>
