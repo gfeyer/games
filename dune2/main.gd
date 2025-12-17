@@ -33,7 +33,7 @@ func _ready() -> void:
 	map_generator.generate_map(terrain_manager)
 
 	# Setup HUD
-	hud.setup(terrain_manager, fog_of_war)
+	hud.setup(terrain_manager, fog_of_war, game_camera)
 	hud.build_requested.connect(_on_build_requested)
 	hud.minimap_clicked.connect(_on_minimap_clicked)
 
@@ -59,6 +59,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		handle_mouse_button(event)
 	elif event is InputEventMouseMotion:
 		handle_mouse_motion(event)
+	elif event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			handle_escape()
 
 func handle_mouse_button(event: InputEventMouseButton) -> void:
 	var world_pos = game_camera.get_world_mouse_position()
@@ -109,6 +112,10 @@ func finish_selection(pos: Vector2) -> void:
 	for unit in GameManager.selected_units:
 		if is_instance_valid(unit):
 			unit.deselect()
+
+	# Also deselect building
+	if GameManager.selected_building and is_instance_valid(GameManager.selected_building):
+		GameManager.selected_building.deselect()
 
 	GameManager.clear_selection()
 
@@ -187,7 +194,27 @@ func get_enemy_at(pos: Vector2) -> Node2D:
 func enter_placement_mode(building_type: String) -> void:
 	placement_mode = true
 	placement_building = building_type
-	# Create ghost would go here
+
+	# Create placement ghost
+	if placement_ghost:
+		placement_ghost.queue_free()
+
+	placement_ghost = Node2D.new()
+	placement_ghost.set_script(preload("res://ui/placement_ghost.gd"))
+	placement_ghost.setup(building_type)
+	add_child(placement_ghost)
+
+func handle_escape() -> void:
+	if placement_mode:
+		cancel_placement()
+	else:
+		# Deselect all units and buildings
+		for unit in GameManager.selected_units:
+			if is_instance_valid(unit):
+				unit.deselect()
+		if GameManager.selected_building and is_instance_valid(GameManager.selected_building):
+			GameManager.selected_building.deselect()
+		GameManager.clear_selection()
 
 func cancel_placement() -> void:
 	placement_mode = false
@@ -196,19 +223,49 @@ func cancel_placement() -> void:
 		placement_ghost.queue_free()
 		placement_ghost = null
 
+	# Clear CY pending building
+	var cy = GameManager.get_construction_yard(GameManager.player_faction)
+	if cy and cy is ConstructionYard:
+		cy.clear_pending_building()
+
 func update_placement_ghost(grid_pos: Vector2i) -> void:
 	if placement_ghost:
 		placement_ghost.global_position = Constants.grid_to_world(grid_pos)
+		# Use correct validation for concrete vs buildings
+		if placement_building == "concrete":
+			placement_ghost.set_valid(terrain_manager.can_place_concrete(grid_pos))
+		else:
+			placement_ghost.set_valid(terrain_manager.can_place_building(grid_pos, placement_ghost.grid_size))
 
 func try_place_building(grid_pos: Vector2i) -> void:
 	if placement_building == "":
 		return
 
+	# Handle concrete specially - just modify terrain
+	if placement_building == "concrete":
+		if not terrain_manager.can_place_concrete(grid_pos):
+			return
+		terrain_manager.place_concrete(grid_pos)
+		# Clear CY pending
+		var cy = GameManager.get_construction_yard(GameManager.player_faction)
+		if cy and cy is ConstructionYard:
+			cy.clear_pending_building()
+		cancel_placement()
+		return
+
 	var building_data = Constants.BUILDINGS.get(placement_building, {})
 	var size = building_data.get("size", Vector2i(1, 1))
 
-	if terrain_manager.can_place_building(grid_pos, size):
-		spawn_building(placement_building, grid_pos, GameManager.player_faction)
+	if not terrain_manager.can_place_building(grid_pos, size):
+		return
+
+	# Spawn the building
+	var building = spawn_building(placement_building, grid_pos, GameManager.player_faction)
+	if building:
+		# Clear CY pending
+		var cy = GameManager.get_construction_yard(GameManager.player_faction)
+		if cy and cy is ConstructionYard:
+			cy.clear_pending_building()
 		cancel_placement()
 
 # Spawning
@@ -254,6 +311,12 @@ func spawn_unit(type: String, pos: Vector2, faction: int) -> Unit:
 	if unit is Harvester:
 		unit.set_terrain_manager(terrain_manager)
 
+	# Register player units as vision sources for fog of war
+	if faction == Constants.Faction.ATREIDES:
+		var grid_pos = Constants.world_to_grid(pos)
+		fog_of_war.add_vision_source(unit.vision_id, grid_pos, unit.sight_range)
+		unit.destroyed.connect(_on_unit_destroyed.bind(unit))
+
 	return unit
 
 func _on_building_production_complete(item_id: String, building: Building) -> void:
@@ -263,10 +326,10 @@ func _on_building_production_complete(item_id: String, building: Building) -> vo
 		if building.has_method("get_spawn_position"):
 			spawn_pos = building.get_spawn_position()
 		spawn_unit(item_id, spawn_pos, building.faction)
-
-		# If it's a refinery that spawned, give it a harvester
-		if item_id == "refinery" and building is ConstructionYard:
-			pass  # Refinery spawns its own harvester
+	elif item_id in Constants.BUILDINGS:
+		# Building completed - automatically enter placement mode for player
+		if building.faction == GameManager.player_faction and building is ConstructionYard:
+			enter_placement_mode(item_id)
 
 func update_fog_of_war() -> void:
 	# Update vision from all player units and buildings
@@ -275,10 +338,10 @@ func update_fog_of_war() -> void:
 		fog_of_war.update_vision_source(unit.vision_id, grid_pos)
 
 func _draw() -> void:
-	# Draw selection rectangle
+	# Draw selection rectangle (white)
 	if is_selecting and selection_rect.size.length() > 5:
-		draw_rect(selection_rect, Color(0, 1, 0, 0.3))
-		draw_rect(selection_rect, Color(0, 1, 0, 0.8), false, 2.0)
+		draw_rect(selection_rect, Color(1, 1, 1, 0.2))
+		draw_rect(selection_rect, Color(1, 1, 1, 0.8), false, 2.0)
 
 func _on_build_requested(building_type: String) -> void:
 	# Check if player has a construction yard and it's ready
@@ -295,3 +358,8 @@ func _on_build_requested(building_type: String) -> void:
 
 func _on_minimap_clicked(world_position: Vector2) -> void:
 	game_camera.center_on(world_position)
+
+func _on_unit_destroyed(unit: Unit) -> void:
+	# Remove vision source when player unit dies
+	if unit.faction == Constants.Faction.ATREIDES:
+		fog_of_war.remove_vision_source(unit.vision_id)

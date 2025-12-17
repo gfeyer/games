@@ -87,6 +87,20 @@ func remove_building(top_left: Vector2i, size: Vector2i) -> void:
 			var pos = top_left + Vector2i(x, y)
 			set_terrain(pos, Constants.Terrain.CONCRETE)
 
+func place_concrete(grid_pos: Vector2i) -> void:
+	if not Constants.is_valid_grid_pos(grid_pos):
+		return
+	var terrain = get_terrain(grid_pos)
+	# Can place concrete on sand, rock, or spice (not on existing buildings)
+	if terrain != Constants.Terrain.BUILDING and terrain != Constants.Terrain.CONCRETE:
+		set_terrain(grid_pos, Constants.Terrain.CONCRETE)
+
+func can_place_concrete(grid_pos: Vector2i) -> bool:
+	if not Constants.is_valid_grid_pos(grid_pos):
+		return false
+	var terrain = get_terrain(grid_pos)
+	return terrain != Constants.Terrain.BUILDING and terrain != Constants.Terrain.CONCRETE
+
 func _draw() -> void:
 	for x in range(Constants.MAP_WIDTH):
 		for y in range(Constants.MAP_HEIGHT):

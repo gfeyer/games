@@ -29,6 +29,9 @@ z_index = 1
 [node name="Units" type="Node2D" parent="."]
 z_index = 2
 
+[node name="SelectionBox" type="Node2D" parent="."]
+z_index = 20
+
 [node name="GameCamera" type="Camera2D" parent="."]
 script = ExtResource("5_camera")
 

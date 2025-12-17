@@ -14,8 +14,8 @@ func _ready() -> void:
 	GameManager.game_over.connect(_on_game_over)
 	game_over_panel.visible = false
 
-func setup(terrain_manager: TerrainManager, fog: FogOfWar) -> void:
-	minimap.setup(terrain_manager, fog)
+func setup(terrain_manager: TerrainManager, fog: FogOfWar, camera: GameCamera = null) -> void:
+	minimap.setup(terrain_manager, fog, camera)
 
 func _on_build_requested(building_type: String) -> void:
 	build_requested.emit(building_type)

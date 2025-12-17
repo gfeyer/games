@@ -75,8 +75,16 @@ func clamp_to_bounds() -> void:
 	var viewport_size = get_viewport_rect().size / zoom
 	var half_viewport = viewport_size / 2
 
-	position.x = clampf(position.x, half_viewport.x, map_bounds.size.x - half_viewport.x)
-	position.y = clampf(position.y, half_viewport.y, map_bounds.size.y - half_viewport.y)
+	# If viewport is larger than map, center on map
+	if viewport_size.x >= map_bounds.size.x:
+		position.x = map_bounds.size.x / 2
+	else:
+		position.x = clampf(position.x, half_viewport.x, map_bounds.size.x - half_viewport.x)
+
+	if viewport_size.y >= map_bounds.size.y:
+		position.y = map_bounds.size.y / 2
+	else:
+		position.y = clampf(position.y, half_viewport.y, map_bounds.size.y - half_viewport.y)
 
 func center_on(world_pos: Vector2) -> void:
 	position = world_pos
@@ -89,3 +97,8 @@ func screen_to_world(screen_pos: Vector2) -> Vector2:
 	var viewport_size = get_viewport_rect().size
 	var offset = screen_pos - viewport_size / 2
 	return position + offset / zoom
+
+func get_view_rect() -> Rect2:
+	var viewport_size = get_viewport_rect().size / zoom
+	var top_left = position - viewport_size / 2
+	return Rect2(top_left, viewport_size)
