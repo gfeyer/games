@@ -27,9 +27,9 @@ func _physics_process(delta: float) -> void:
 func handle_player_input(delta: float) -> void:
 	var input_dir = 0.0
 
-	if Input.is_action_pressed("ui_up"):
+	if Input.is_action_pressed("move_up") or Input.is_action_pressed("ui_up"):
 		input_dir = -1.0
-	elif Input.is_action_pressed("ui_down"):
+	elif Input.is_action_pressed("move_down") or Input.is_action_pressed("ui_down"):
 		input_dir = 1.0
 
 	velocity.y = input_dir * move_speed
