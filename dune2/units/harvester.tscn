@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://harvester"]
+
+[ext_resource type="Script" path="res://units/harvester.gd" id="1_harvester"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_harvester"]
+size = Vector2(20, 28)
+
+[node name="Harvester" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 6
+script = ExtResource("1_harvester")
+unit_type = "harvester"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_harvester")

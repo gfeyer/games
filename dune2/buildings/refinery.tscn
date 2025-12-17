@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://refinery"]
+
+[ext_resource type="Script" path="res://buildings/refinery.gd" id="1_refinery"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_refinery"]
+size = Vector2(96, 64)
+
+[node name="Refinery" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_refinery")
+building_type = "refinery"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_refinery")

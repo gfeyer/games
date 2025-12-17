@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" fill="#C4A458"/>
+  <rect x="20" y="60" width="40" height="30" fill="#2060A0" stroke="#4080C0" stroke-width="2"/>
+  <rect x="68" y="50" width="40" height="40" fill="#785830" stroke="#604020" stroke-width="2"/>
+  <circle cx="88" cy="70" r="12" fill="#B85820"/>
+  <polygon points="30,55 40,40 50,55" fill="#2060A0"/>
+  <text x="64" y="115" text-anchor="middle" fill="#182838" font-family="Arial" font-size="16" font-weight="bold">DUNE</text>
+</svg>

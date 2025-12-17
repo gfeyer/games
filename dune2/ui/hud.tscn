@@ -1,0 +1,110 @@
+[gd_scene load_steps=4 format=3 uid="uid://hud_dune2"]
+
+[ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
+[ext_resource type="Script" path="res://ui/sidebar.gd" id="2_sidebar"]
+[ext_resource type="Script" path="res://ui/minimap.gd" id="3_minimap"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="SidebarPanel" type="PanelContainer" parent="."]
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Sidebar" type="Control" parent="SidebarPanel"]
+layout_mode = 2
+script = ExtResource("2_sidebar")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SidebarPanel/Sidebar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="CreditsLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.5, 1)
+theme_override_font_sizes/font_size = 20
+text = "Credits: 2000"
+
+[node name="BuildLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 14
+text = "BUILD:"
+
+[node name="BuildButtons" type="VBoxContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="UnitsLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 14
+text = "UNITS:"
+
+[node name="UnitButtons" type="VBoxContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="InfoPanel" type="PanelContainer" parent="SidebarPanel/Sidebar/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="InfoLabel" type="Label" parent="SidebarPanel/Sidebar/VBoxContainer/InfoPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_font_sizes/font_size = 12
+text = "Info"
+
+[node name="MinimapPanel" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -400.0
+offset_bottom = 200.0
+grow_horizontal = 0
+
+[node name="Minimap" type="Control" parent="MinimapPanel"]
+custom_minimum_size = Vector2(180, 180)
+layout_mode = 2
+script = ExtResource("3_minimap")
+
+[node name="GameOverPanel" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -80.0
+offset_right = 150.0
+offset_bottom = 80.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="GameOverPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="ResultLabel" type="Label" parent="GameOverPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "VICTORY!"
+horizontal_alignment = 1
+
+[node name="RestartLabel" type="Label" parent="GameOverPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+theme_override_font_sizes/font_size = 16
+text = "Refresh to restart"
+horizontal_alignment = 1

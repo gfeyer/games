@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://construction_yard"]
+
+[ext_resource type="Script" path="res://buildings/construction_yard.gd" id="1_cy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cy"]
+size = Vector2(96, 96)
+
+[node name="ConstructionYard" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_cy")
+building_type = "construction_yard"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_cy")

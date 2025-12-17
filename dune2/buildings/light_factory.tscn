@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://light_factory"]
+
+[ext_resource type="Script" path="res://buildings/light_factory.gd" id="1_factory"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_factory"]
+size = Vector2(96, 64)
+
+[node name="LightFactory" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_factory")
+building_type = "light_factory"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_factory")

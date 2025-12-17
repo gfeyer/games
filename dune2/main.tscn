@@ -1,0 +1,38 @@
+[gd_scene load_steps=8 format=3 uid="uid://ckk1grgms43lb"]
+
+[ext_resource type="Script" uid="uid://d4lecgb6i4yhk" path="res://main.gd" id="1_main"]
+[ext_resource type="Script" uid="uid://c62f1luuftiq4" path="res://map/terrain_manager.gd" id="2_terrain"]
+[ext_resource type="Script" uid="uid://etryueuy5a8o" path="res://map/fog_of_war.gd" id="3_fog"]
+[ext_resource type="Script" uid="uid://bqyavwaxgdl0o" path="res://map/map_generator.gd" id="4_mapgen"]
+[ext_resource type="Script" uid="uid://dcgg7wniahngc" path="res://map/game_camera.gd" id="5_camera"]
+[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="6_hud"]
+[ext_resource type="Script" uid="uid://caae451bhsu4j" path="res://ai/ai_controller.gd" id="7_ai"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="TerrainManager" type="Node2D" parent="."]
+script = ExtResource("2_terrain")
+
+[node name="TerrainLayer" type="Node2D" parent="TerrainManager"]
+
+[node name="FogOfWar" type="Node2D" parent="."]
+z_index = 10
+script = ExtResource("3_fog")
+
+[node name="MapGenerator" type="Node" parent="."]
+script = ExtResource("4_mapgen")
+
+[node name="Buildings" type="Node2D" parent="."]
+z_index = 1
+
+[node name="Units" type="Node2D" parent="."]
+z_index = 2
+
+[node name="GameCamera" type="Camera2D" parent="."]
+script = ExtResource("5_camera")
+
+[node name="HUD" parent="." instance=ExtResource("6_hud")]
+
+[node name="AIController" type="Node" parent="."]
+script = ExtResource("7_ai")

@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://barracks"]
+
+[ext_resource type="Script" path="res://buildings/barracks.gd" id="1_barracks"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_barracks"]
+size = Vector2(64, 64)
+
+[node name="Barracks" type="Area2D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("1_barracks")
+building_type = "barracks"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_barracks")
