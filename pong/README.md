@@ -4,7 +4,7 @@ A classic Pong game built with Godot 4.5.
 
 ## Play Now
 
-**[Play Pong in your browser](https://gfeyer.github.io/games/pong/)**
+**[Play Pong in your browser](https://gfeyer.github.io/games/pong/docs/)**
 
 ## Controls
 
@@ -43,7 +43,7 @@ Built with [Godot Engine 4.5](https://godotengine.org/)
 ### Building for Web
 
 ```bash
-godot --headless --export-release "Web" "index.html"
+godot --headless --export-release "Web" "docs/index.html"
 ```
 
 ## License
