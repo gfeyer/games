@@ -13,7 +13,7 @@ A classic Asteroids arcade game built with Godot 4.5.
 | W / Arrow Up | Thrust forward |
 | A / Arrow Left | Rotate left |
 | D / Arrow Right | Rotate right |
-| Space | Shoot |
+| Space / Click | Shoot |
 
 ## Features
 

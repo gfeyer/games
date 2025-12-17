@@ -90,7 +90,7 @@ horizontal_alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 16
-text = "Press SPACE to restart"
+text = "Press SPACE or CLICK to restart"
 horizontal_alignment = 1
 
 [node name="StartPanel" type="PanelContainer" parent="."]
@@ -125,12 +125,12 @@ theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 16
 text = "W/UP - Thrust
 A/D or LEFT/RIGHT - Rotate
-SPACE - Shoot"
+SPACE/CLICK - Shoot"
 horizontal_alignment = 1
 
 [node name="StartLabel" type="Label" parent="StartPanel/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 0.5, 1)
 theme_override_font_sizes/font_size = 20
-text = "Press SPACE to start"
+text = "Press SPACE or CLICK to start"
 horizontal_alignment = 1
