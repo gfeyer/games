@@ -1,0 +1,5 @@
+# Godot
+.godot/
+
+# Import files for web export assets (not needed in repo)
+index.*.import
