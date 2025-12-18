@@ -5,7 +5,7 @@ signal spice_collected(amount: int)
 signal returning_to_refinery
 signal docked
 
-enum HarvesterState { IDLE, MOVING_TO_SPICE, HARVESTING, RETURNING, DOCKING, UNLOADING }
+enum HarvesterState { IDLE, MOVING_TO_SPICE, HARVESTING, RETURNING, WAITING_TO_DOCK, DOCKING, UNLOADING }
 
 var state: HarvesterState = HarvesterState.IDLE
 var spice_carried: int = 0
@@ -15,6 +15,7 @@ var target_spice_tile: Vector2i = Vector2i(-1, -1)
 var target_refinery: Refinery = null
 
 var harvest_timer: float = 0.0
+var wait_retry_timer: float = 0.0
 var terrain_manager: TerrainManager = null
 
 func _ready() -> void:
@@ -36,12 +37,21 @@ func _physics_process(delta: float) -> void:
 			super._physics_process(delta)
 			if not is_moving:
 				start_docking()
+		HarvesterState.WAITING_TO_DOCK:
+			process_waiting_to_dock(delta)
 		HarvesterState.DOCKING:
 			process_docking(delta)
 		HarvesterState.UNLOADING:
 			process_unloading(delta)
 
 	update_vision()
+
+func process_waiting_to_dock(delta: float) -> void:
+	wait_retry_timer += delta
+	if wait_retry_timer >= 0.5:  # Check every 0.5 seconds
+		wait_retry_timer = 0.0
+		if target_refinery and is_instance_valid(target_refinery) and target_refinery.can_dock():
+			start_docking()
 
 func set_terrain_manager(tm: TerrainManager) -> void:
 	terrain_manager = tm
@@ -173,17 +183,23 @@ func find_nearest_refinery() -> Refinery:
 	return nearest
 
 func start_docking() -> void:
-	if target_refinery and target_refinery.can_dock():
+	if not target_refinery or not is_instance_valid(target_refinery):
+		# Refinery was destroyed, find another
+		target_refinery = find_nearest_refinery()
+		if target_refinery:
+			state = HarvesterState.RETURNING
+			move_to(target_refinery.get_dock_position())
+		else:
+			state = HarvesterState.IDLE
+		return
+
+	if target_refinery.can_dock():
 		target_refinery.dock_harvester(self)
 		state = HarvesterState.DOCKING
 		docked.emit()
 	else:
-		# Wait or find another refinery
-		target_refinery = find_nearest_refinery()
-		if target_refinery:
-			move_to(target_refinery.get_dock_position())
-		else:
-			state = HarvesterState.IDLE
+		# Refinery is busy - wait nearby and retry
+		state = HarvesterState.WAITING_TO_DOCK
 
 func process_docking(_delta: float) -> void:
 	# Move to dock position
@@ -281,5 +297,7 @@ func _draw() -> void:
 			state_color = Constants.COLORS["spice_high"]
 		HarvesterState.RETURNING, HarvesterState.DOCKING, HarvesterState.UNLOADING:
 			state_color = Color.GREEN
+		HarvesterState.WAITING_TO_DOCK:
+			state_color = Color.YELLOW
 
 	draw_circle(Vector2(size.x / 2 + 4, -size.y / 2), 3, state_color)
