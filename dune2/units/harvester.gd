@@ -221,17 +221,9 @@ func start_docking() -> void:
 			state = HarvesterState.IDLE
 		return
 
-	if target_refinery.can_dock():
-		# Try to dock - may fail if another harvester docked in same frame
-		if target_refinery.dock_harvester(self):
-			state = HarvesterState.DOCKING
-			docked.emit()
-		else:
-			# Lost race to dock, wait and retry
-			state = HarvesterState.WAITING_TO_DOCK
-	else:
-		# Refinery is busy - wait nearby and retry
-		state = HarvesterState.WAITING_TO_DOCK
+	# Don't block the dock yet - just start moving to dock position
+	# We only block when actually unloading
+	state = HarvesterState.DOCKING
 
 func process_docking(_delta: float) -> void:
 	# Check if refinery still exists
@@ -250,7 +242,17 @@ func process_docking(_delta: float) -> void:
 	if global_position.distance_to(dock_pos) > 5:
 		global_position = global_position.move_toward(dock_pos, move_speed * _delta * 0.5)
 	else:
-		state = HarvesterState.UNLOADING
+		# We've reached the dock - now try to claim it for unloading
+		if target_refinery.can_dock():
+			if target_refinery.dock_harvester(self):
+				state = HarvesterState.UNLOADING
+				docked.emit()
+			else:
+				# Lost race to another harvester, wait
+				state = HarvesterState.WAITING_TO_DOCK
+		else:
+			# Another harvester is unloading, wait our turn
+			state = HarvesterState.WAITING_TO_DOCK
 
 func process_unloading(delta: float) -> void:
 	if spice_carried <= 0:

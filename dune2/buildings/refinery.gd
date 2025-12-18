@@ -17,7 +17,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	super._process(delta)
 
-	# Safety check: validate docked harvester is actually docking/unloading
+	# Safety check: validate docked harvester is actually unloading
 	if docked_harvester != null:
 		if not is_instance_valid(docked_harvester):
 			# Harvester was destroyed, clear reference
@@ -25,9 +25,9 @@ func _process(delta: float) -> void:
 			dock_timeout = 0.0
 		elif docked_harvester is Harvester:
 			var h = docked_harvester as Harvester
-			# Check if harvester is actually in a docking/unloading state
-			if h.state != Harvester.HarvesterState.DOCKING and h.state != Harvester.HarvesterState.UNLOADING:
-				# Harvester claimed to dock but isn't actually docking - clear it
+			# Check if harvester is actually in UNLOADING state (only state that blocks dock)
+			if h.state != Harvester.HarvesterState.UNLOADING:
+				# Harvester claimed dock but isn't actually unloading - clear it
 				dock_timeout += delta
 				if dock_timeout > 2.0:  # 2 second timeout
 					docked_harvester = null
