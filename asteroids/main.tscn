@@ -1,9 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://main345678"]
+[gd_scene load_steps=8 format=3 uid="uid://cgorx1vc8rrwu"]
 
-[ext_resource type="Script" path="res://main.gd" id="1_main"]
-[ext_resource type="PackedScene" uid="uid://dqwerty12345" path="res://ship/ship.tscn" id="2_ship"]
+[ext_resource type="Script" uid="uid://meempu2v8nid" path="res://main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://ship/ship.tscn" id="2_ship"]
 [ext_resource type="PackedScene" uid="uid://hud234567" path="res://ui/hud.tscn" id="3_hud"]
-[ext_resource type="PackedScene" uid="uid://stars567890" path="res://assets/stars.tscn" id="4_stars"]
+[ext_resource type="PackedScene" path="res://assets/stars.tscn" id="4_stars"]
 
 [sub_resource type="Gradient" id="Gradient_explosion"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -36,10 +36,10 @@ position = Vector2(640, 360)
 [node name="ExplosionParticles" type="GPUParticles2D" parent="."]
 emitting = false
 amount = 30
-process_material = SubResource("ParticleProcessMaterial_explosion")
 lifetime = 0.5
 one_shot = true
 explosiveness = 1.0
+process_material = SubResource("ParticleProcessMaterial_explosion")
 
 [node name="HUD" parent="." instance=ExtResource("3_hud")]
 
