@@ -204,9 +204,13 @@ func start_docking() -> void:
 		return
 
 	if target_refinery.can_dock():
-		target_refinery.dock_harvester(self)
-		state = HarvesterState.DOCKING
-		docked.emit()
+		# Try to dock - may fail if another harvester docked in same frame
+		if target_refinery.dock_harvester(self):
+			state = HarvesterState.DOCKING
+			docked.emit()
+		else:
+			# Lost race to dock, wait and retry
+			state = HarvesterState.WAITING_TO_DOCK
 	else:
 		# Refinery is busy - wait nearby and retry
 		state = HarvesterState.WAITING_TO_DOCK

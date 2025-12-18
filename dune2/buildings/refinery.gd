@@ -18,11 +18,18 @@ func get_dock_position() -> Vector2:
 	return global_position + Vector2(0, grid_size.y * Constants.TILE_SIZE / 2 + 16)
 
 func can_dock() -> bool:
+	# Clear stale reference if harvester was destroyed
+	if docked_harvester != null and not is_instance_valid(docked_harvester):
+		docked_harvester = null
 	return docked_harvester == null
 
-func dock_harvester(harvester: Node2D) -> void:
+func dock_harvester(harvester: Node2D) -> bool:
+	# Atomic check - reject if already occupied
+	if docked_harvester != null:
+		return false
 	docked_harvester = harvester
 	harvester_docked.emit(harvester)
+	return true
 
 func undock_harvester() -> void:
 	docked_harvester = null
