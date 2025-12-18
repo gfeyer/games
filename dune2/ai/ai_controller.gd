@@ -7,7 +7,7 @@ var fog_of_war: FogOfWar
 var main_game: Node2D
 
 # DEBUG: Set to > 0 to delay AI attacks (in minutes). Set to 0 to disable.
-@export var debug_attack_delay_minutes: float = 5.0  # 5 minutes delay for testing
+@export var debug_attack_delay_minutes: float = 15.0  # 5 minutes delay for testing
 
 # Timers
 var think_timer: float = 0.0

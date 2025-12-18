@@ -57,15 +57,14 @@ func undock_harvester() -> void:
 	docked_harvester = null
 
 func deposit_spice(amount: int) -> int:
-	var space_available = max_storage - spice_storage
-	var deposited = mini(amount, space_available)
-	spice_storage += deposited
+	# Convert spice directly to credits (no storage limit)
+	# spice_storage is just for visual display, doesn't block deposits
+	spice_storage = mini(spice_storage + amount, max_storage)
 
-	# Convert to credits
-	GameManager.add_credits(faction, deposited)
-	spice_deposited.emit(deposited)
+	GameManager.add_credits(faction, amount)
+	spice_deposited.emit(amount)
 
-	return deposited
+	return amount
 
 func _draw() -> void:
 	super._draw()
