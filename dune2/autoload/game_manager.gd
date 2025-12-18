@@ -12,15 +12,15 @@ signal selection_changed(selected: Array)
 # DEBUG SETTINGS - Set these to speed up testing
 # =============================================================================
 ## Game speed multiplier (1.0 = normal, 2.0 = 2x speed, etc.)
-@export var debug_game_speed: float = 2.0
+@export var debug_game_speed: float = 1.0
 ## Production speed multiplier for buildings (1.0 = normal)
-@export var debug_production_speed: float = 3.0
+@export var debug_production_speed: float = 1.0
 ## Harvesting speed multiplier (1.0 = normal)
-@export var debug_harvest_speed: float = 3.0
+@export var debug_harvest_speed: float = 1.0
 ## Starting credits multiplier (1.0 = normal, 10.0 = 10x starting credits)
 @export var debug_credits_multiplier: float = 1.0
 ## Give player extra credits at start
-@export var debug_bonus_credits: int = 5000
+@export var debug_bonus_credits: int = 2000
 # =============================================================================
 
 enum GameState { MENU, PLAYING, PAUSED, GAME_OVER }
