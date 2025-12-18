@@ -183,9 +183,12 @@ func issue_command(pos: Vector2) -> void:
 			if refinery:
 				# Send harvester to specific refinery
 				unit.force_return_to_refinery(refinery)
-			else:
-				# Harvesters go harvest spice
+			elif is_spice_tile(grid_pos):
+				# Clicked on spice - go harvest
 				unit.harvest_at(grid_pos)
+			else:
+				# Clicked elsewhere - just move there
+				unit.move_to(pos)
 		else:
 			unit.move_to(pos)
 
@@ -208,6 +211,12 @@ func get_enemy_at(pos: Vector2) -> Node2D:
 			return building
 
 	return null
+
+func is_spice_tile(grid_pos: Vector2i) -> bool:
+	if not terrain_manager:
+		return false
+	var terrain = terrain_manager.get_terrain(grid_pos)
+	return terrain >= Constants.Terrain.SPICE_LOW and terrain <= Constants.Terrain.SPICE_HIGH
 
 # Building placement
 func enter_placement_mode(building_type: String) -> void:
