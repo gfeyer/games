@@ -7,11 +7,33 @@ signal spice_deposited(amount: int)
 var spice_storage: int = 0
 var max_storage: int = 1000
 var docked_harvester: Node2D = null
+var dock_timeout: float = 0.0
 
 func _ready() -> void:
 	building_type = "refinery"
 	super._ready()
 	max_storage = building_data.get("storage", 1000)
+
+func _process(delta: float) -> void:
+	super._process(delta)
+
+	# Safety check: validate docked harvester is actually docking/unloading
+	if docked_harvester != null:
+		if not is_instance_valid(docked_harvester):
+			# Harvester was destroyed, clear reference
+			docked_harvester = null
+			dock_timeout = 0.0
+		elif docked_harvester is Harvester:
+			var h = docked_harvester as Harvester
+			# Check if harvester is actually in a docking/unloading state
+			if h.state != Harvester.HarvesterState.DOCKING and h.state != Harvester.HarvesterState.UNLOADING:
+				# Harvester claimed to dock but isn't actually docking - clear it
+				dock_timeout += delta
+				if dock_timeout > 2.0:  # 2 second timeout
+					docked_harvester = null
+					dock_timeout = 0.0
+			else:
+				dock_timeout = 0.0
 
 func get_dock_position() -> Vector2:
 	# Dock position is at the front of the refinery

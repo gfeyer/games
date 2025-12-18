@@ -66,7 +66,25 @@ func process_waiting_to_dock(delta: float) -> void:
 func set_terrain_manager(tm: TerrainManager) -> void:
 	terrain_manager = tm
 
+# Override move_to to cancel docking operations when player issues move command
+func move_to(pos: Vector2, player_order: bool = true) -> void:
+	if player_order:
+		cancel_docking()
+	super.move_to(pos, player_order)
+
+func cancel_docking() -> void:
+	# If we're in any docking-related state, cancel it
+	if state in [HarvesterState.RETURNING, HarvesterState.WAITING_TO_DOCK, HarvesterState.DOCKING, HarvesterState.UNLOADING]:
+		# Undock from refinery if we were docked
+		if target_refinery and is_instance_valid(target_refinery):
+			target_refinery.undock_harvester()
+		target_refinery = null
+		state = HarvesterState.IDLE
+		wait_retry_timer = 0.0
+
 func harvest_at(grid_pos: Vector2i) -> void:
+	cancel_docking()  # Cancel any docking operation first
+
 	if not terrain_manager:
 		return
 
