@@ -47,10 +47,20 @@ func _physics_process(delta: float) -> void:
 	update_vision()
 
 func process_waiting_to_dock(delta: float) -> void:
+	# Check if refinery was destroyed while waiting
+	if not target_refinery or not is_instance_valid(target_refinery):
+		target_refinery = find_nearest_refinery()
+		if target_refinery:
+			state = HarvesterState.RETURNING
+			move_to(target_refinery.get_dock_position())
+		else:
+			state = HarvesterState.IDLE
+		return
+
 	wait_retry_timer += delta
 	if wait_retry_timer >= 0.5:  # Check every 0.5 seconds
 		wait_retry_timer = 0.0
-		if target_refinery and is_instance_valid(target_refinery) and target_refinery.can_dock():
+		if target_refinery.can_dock():
 			start_docking()
 
 func set_terrain_manager(tm: TerrainManager) -> void:
@@ -202,30 +212,50 @@ func start_docking() -> void:
 		state = HarvesterState.WAITING_TO_DOCK
 
 func process_docking(_delta: float) -> void:
-	# Move to dock position
-	if target_refinery:
-		var dock_pos = target_refinery.get_dock_position()
-		if global_position.distance_to(dock_pos) > 5:
-			global_position = global_position.move_toward(dock_pos, move_speed * _delta * 0.5)
+	# Check if refinery still exists
+	if not target_refinery or not is_instance_valid(target_refinery):
+		# Refinery destroyed while docking, find another
+		target_refinery = find_nearest_refinery()
+		if target_refinery:
+			state = HarvesterState.RETURNING
+			move_to(target_refinery.get_dock_position())
 		else:
-			state = HarvesterState.UNLOADING
+			state = HarvesterState.IDLE
+		return
+
+	# Move to dock position
+	var dock_pos = target_refinery.get_dock_position()
+	if global_position.distance_to(dock_pos) > 5:
+		global_position = global_position.move_toward(dock_pos, move_speed * _delta * 0.5)
+	else:
+		state = HarvesterState.UNLOADING
 
 func process_unloading(delta: float) -> void:
 	if spice_carried <= 0:
 		finish_unloading()
 		return
 
+	# Check if refinery still exists
+	if not target_refinery or not is_instance_valid(target_refinery):
+		# Refinery destroyed while unloading, find another
+		target_refinery = find_nearest_refinery()
+		if target_refinery:
+			state = HarvesterState.RETURNING
+			move_to(target_refinery.get_dock_position())
+		else:
+			state = HarvesterState.IDLE
+		return
+
 	# Unload spice over time
 	var unload_amount = int(harvest_rate * 2 * delta)
 	unload_amount = mini(unload_amount, spice_carried)
 
-	if target_refinery:
-		var deposited = target_refinery.deposit_spice(unload_amount)
-		spice_carried -= deposited
-		queue_redraw()
+	var deposited = target_refinery.deposit_spice(unload_amount)
+	spice_carried -= deposited
+	queue_redraw()
 
 func finish_unloading() -> void:
-	if target_refinery:
+	if target_refinery and is_instance_valid(target_refinery):
 		target_refinery.undock_harvester()
 
 	target_refinery = null
@@ -236,6 +266,13 @@ func finish_unloading() -> void:
 	var new_target = find_nearest_spice(current_grid)
 	if new_target != Vector2i(-1, -1):
 		harvest_at(new_target)
+
+# Override die to undock from refinery first
+func die() -> void:
+	# Undock from refinery if we were docked
+	if target_refinery and is_instance_valid(target_refinery):
+		target_refinery.undock_harvester()
+	super.die()
 
 func get_cargo_percent() -> float:
 	return float(spice_carried) / float(max_capacity)

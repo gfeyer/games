@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://dcgg7wniahngc" path="res://map/game_camera.gd" id="5_camera"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="6_hud"]
 [ext_resource type="Script" uid="uid://caae451bhsu4j" path="res://ai/ai_controller.gd" id="7_ai"]
-[ext_resource type="Script" path="res://ui/selection_box.gd" id="8_selbox"]
+[ext_resource type="Script" uid="uid://cq32eie8gbn4n" path="res://ui/selection_box.gd" id="8_selbox"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
