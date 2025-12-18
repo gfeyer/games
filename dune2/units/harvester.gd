@@ -5,7 +5,7 @@ signal spice_collected(amount: int)
 signal returning_to_refinery
 signal docked
 
-enum HarvesterState { IDLE, MOVING_TO_SPICE, HARVESTING, RETURNING, WAITING_TO_DOCK, DOCKING, UNLOADING }
+enum HarvesterState { IDLE, MOVING, MOVING_TO_SPICE, HARVESTING, RETURNING, WAITING_TO_DOCK, DOCKING, UNLOADING }
 
 var state: HarvesterState = HarvesterState.IDLE
 var spice_carried: int = 0
@@ -27,6 +27,10 @@ func _physics_process(delta: float) -> void:
 	match state:
 		HarvesterState.IDLE:
 			pass
+		HarvesterState.MOVING:
+			super._physics_process(delta)
+			if not is_moving:
+				state = HarvesterState.IDLE
 		HarvesterState.MOVING_TO_SPICE:
 			super._physics_process(delta)
 			if not is_moving:
@@ -52,7 +56,7 @@ func process_waiting_to_dock(delta: float) -> void:
 		target_refinery = find_nearest_refinery()
 		if target_refinery:
 			state = HarvesterState.RETURNING
-			move_to(target_refinery.get_dock_position())
+			move_to(target_refinery.get_dock_position(), false)
 		else:
 			state = HarvesterState.IDLE
 		return
@@ -70,6 +74,7 @@ func set_terrain_manager(tm: TerrainManager) -> void:
 func move_to(pos: Vector2, player_order: bool = true) -> void:
 	if player_order:
 		cancel_docking()
+		state = HarvesterState.MOVING
 	super.move_to(pos, player_order)
 
 func cancel_docking() -> void:
@@ -97,7 +102,7 @@ func harvest_at(grid_pos: Vector2i) -> void:
 
 	target_spice_tile = grid_pos
 	state = HarvesterState.MOVING_TO_SPICE
-	move_to(Constants.grid_to_world(grid_pos))
+	move_to(Constants.grid_to_world(grid_pos), false)
 
 func find_nearest_spice(from_grid: Vector2i) -> Vector2i:
 	if not terrain_manager:
@@ -177,13 +182,14 @@ func return_to_refinery() -> void:
 
 	state = HarvesterState.RETURNING
 	returning_to_refinery.emit()
-	move_to(target_refinery.get_dock_position())
+	move_to(target_refinery.get_dock_position(), false)
 
 func force_return_to_refinery(refinery: Refinery) -> void:
+	cancel_docking()  # Cancel any current docking first
 	target_refinery = refinery
 	state = HarvesterState.RETURNING
 	returning_to_refinery.emit()
-	move_to(target_refinery.get_dock_position())
+	move_to(target_refinery.get_dock_position(), false)
 
 func find_nearest_refinery() -> Refinery:
 	var refineries = GameManager.get_refineries(faction)
@@ -216,7 +222,7 @@ func start_docking() -> void:
 		target_refinery = find_nearest_refinery()
 		if target_refinery:
 			state = HarvesterState.RETURNING
-			move_to(target_refinery.get_dock_position())
+			move_to(target_refinery.get_dock_position(), false)
 		else:
 			state = HarvesterState.IDLE
 		return
@@ -232,7 +238,7 @@ func process_docking(_delta: float) -> void:
 		target_refinery = find_nearest_refinery()
 		if target_refinery:
 			state = HarvesterState.RETURNING
-			move_to(target_refinery.get_dock_position())
+			move_to(target_refinery.get_dock_position(), false)
 		else:
 			state = HarvesterState.IDLE
 		return
@@ -265,7 +271,7 @@ func process_unloading(delta: float) -> void:
 		target_refinery = find_nearest_refinery()
 		if target_refinery:
 			state = HarvesterState.RETURNING
-			move_to(target_refinery.get_dock_position())
+			move_to(target_refinery.get_dock_position(), false)
 		else:
 			state = HarvesterState.IDLE
 		return
