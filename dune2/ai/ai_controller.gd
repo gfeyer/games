@@ -6,6 +6,9 @@ var terrain_manager: TerrainManager
 var fog_of_war: FogOfWar
 var main_game: Node2D
 
+# DEBUG: Set to > 0 to delay AI attacks (in minutes). Set to 0 to disable.
+@export var debug_attack_delay_minutes: float = 5.0  # 5 minutes delay for testing
+
 # Timers
 var think_timer: float = 0.0
 var think_interval: float = 1.0  # Think every second
@@ -13,6 +16,7 @@ var building_timer: float = 0.0
 var building_interval: float = 5.0  # Check building needs every 5 seconds
 var attack_timer: float = 0.0
 var attack_interval: float = 50.0  # Medium difficulty: 45-60 seconds
+var game_time: float = 0.0  # Track total game time for debug delay
 
 # AI States
 enum AIState { STARTUP, ECONOMY, MILITARY, ATTACK }
@@ -53,6 +57,7 @@ func _process(delta: float) -> void:
 	if not GameManager.is_playing():
 		return
 
+	game_time += delta
 	think_timer += delta
 	building_timer += delta
 	attack_timer += delta
@@ -67,7 +72,7 @@ func _process(delta: float) -> void:
 		building_timer = 0.0
 		check_building_needs()
 
-	# Attack timing
+	# Attack timing (respects debug delay)
 	if attack_timer >= attack_interval:
 		attack_timer = 0.0
 		evaluate_attack()
@@ -316,6 +321,10 @@ func defend_base() -> void:
 			unit.attack(target)
 
 func evaluate_attack() -> void:
+	# DEBUG: Don't attack until delay has passed
+	if debug_attack_delay_minutes > 0 and game_time < debug_attack_delay_minutes * 60.0:
+		return
+
 	var units = GameManager.get_units(faction)
 	attack_squad.clear()
 
