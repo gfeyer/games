@@ -186,7 +186,7 @@ func process_production(delta: float) -> void:
 	if current_production == "":
 		return
 
-	production_progress += delta
+	production_progress += delta * GameManager.debug_production_speed
 	if production_progress >= production_time:
 		complete_production()
 

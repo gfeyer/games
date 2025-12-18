@@ -166,7 +166,7 @@ func process_harvesting(delta: float) -> void:
 			return_to_refinery()
 		return
 
-	harvest_timer += delta
+	harvest_timer += delta * GameManager.debug_harvest_speed
 	if harvest_timer >= 1.0:
 		harvest_timer = 0.0
 		var harvested = terrain_manager.harvest_spice(current_grid, 1)

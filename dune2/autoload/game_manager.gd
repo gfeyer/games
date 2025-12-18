@@ -8,6 +8,21 @@ signal unit_destroyed(unit: Node2D)
 signal game_over(winner: int)
 signal selection_changed(selected: Array)
 
+# =============================================================================
+# DEBUG SETTINGS - Set these to speed up testing
+# =============================================================================
+## Game speed multiplier (1.0 = normal, 2.0 = 2x speed, etc.)
+@export var debug_game_speed: float = 2.0
+## Production speed multiplier for buildings (1.0 = normal)
+@export var debug_production_speed: float = 3.0
+## Harvesting speed multiplier (1.0 = normal)
+@export var debug_harvest_speed: float = 3.0
+## Starting credits multiplier (1.0 = normal, 10.0 = 10x starting credits)
+@export var debug_credits_multiplier: float = 1.0
+## Give player extra credits at start
+@export var debug_bonus_credits: int = 5000
+# =============================================================================
+
 enum GameState { MENU, PLAYING, PAUSED, GAME_OVER }
 
 var current_state: GameState = GameState.MENU
@@ -38,12 +53,16 @@ var player_faction: int = Constants.Faction.ATREIDES
 var enemy_faction: int = Constants.Faction.HARKONNEN
 
 func _ready() -> void:
-	pass
+	# Apply debug game speed
+	if debug_game_speed != 1.0:
+		Engine.time_scale = debug_game_speed
 
 func start_game() -> void:
 	current_state = GameState.PLAYING
-	credits[Constants.Faction.ATREIDES] = Constants.STARTING_CREDITS
-	credits[Constants.Faction.HARKONNEN] = Constants.STARTING_CREDITS
+	# Apply debug credits multiplier and bonus
+	var starting = int(Constants.STARTING_CREDITS * debug_credits_multiplier) + debug_bonus_credits
+	credits[Constants.Faction.ATREIDES] = starting
+	credits[Constants.Faction.HARKONNEN] = int(Constants.STARTING_CREDITS * debug_credits_multiplier)
 
 func get_credits(faction: int) -> int:
 	return credits.get(faction, 0)
