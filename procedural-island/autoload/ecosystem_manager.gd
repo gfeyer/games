@@ -1,7 +1,7 @@
 extends Node
-class_name EcosystemManager
 
 ## Central manager for the island ecosystem
+## Note: Do not use class_name as this is an autoload singleton
 ## Handles day/night cycle, time signals, and global references
 
 signal time_changed(hour: float)
@@ -21,11 +21,8 @@ const DUSK_HOUR = 18.0
 var terrain: TerrainGenerator
 var player: Node3D
 
-# Singleton access
-static var instance: EcosystemManager
-
 func _ready() -> void:
-	instance = self
+	pass
 
 func _process(delta: float) -> void:
 	update_time(delta)

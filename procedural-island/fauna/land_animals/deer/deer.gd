@@ -5,10 +5,10 @@ class_name Deer
 
 func _ready() -> void:
 	# Set deer-specific defaults
-	move_speed = 0.4
-	run_speed = 1.0
-	detection_range = 4.0
-	flee_range = 2.5
+	move_speed = 0.8
+	run_speed = 2.0
+	detection_range = 8.0
+	flee_range = 5.0
 	diet = DietType.HERBIVORE
 	is_nocturnal = false
 

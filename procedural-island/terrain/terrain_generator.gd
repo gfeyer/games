@@ -217,7 +217,7 @@ func get_spawn_position() -> Vector3:
 			var h = get_height_at(world_x, world_z)
 			if h > best_height and h > 100.0:  # Above water level
 				best_height = h
-				best_pos = Vector3(world_x, h + 0.5, world_z)
+				best_pos = Vector3(world_x, h + 2.0, world_z)
 
 	# Fallback to center if no good spot found
 	if best_height < 0:

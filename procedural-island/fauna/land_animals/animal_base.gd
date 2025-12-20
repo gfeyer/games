@@ -46,9 +46,9 @@ func _ready() -> void:
 	health = max_health
 
 	# Get terrain reference
-	if EcosystemManager.instance:
-		terrain = EcosystemManager.instance.terrain
-		EcosystemManager.instance.day_night_changed.connect(_on_day_night_changed)
+	if EcosystemManager:
+		terrain = EcosystemManager.terrain
+		EcosystemManager.day_night_changed.connect(_on_day_night_changed)
 
 	# Find state machine child
 	for child in get_children():
@@ -119,15 +119,15 @@ func get_distance_to(target: Node3D) -> float:
 	return global_position.distance_to(target.global_position)
 
 func is_player_nearby() -> bool:
-	if not EcosystemManager.instance or not EcosystemManager.instance.player:
+	if not EcosystemManager or not EcosystemManager.player:
 		return false
-	var player = EcosystemManager.instance.player
+	var player = EcosystemManager.player
 	return get_distance_to(player) < detection_range
 
 func get_player_distance() -> float:
-	if not EcosystemManager.instance or not EcosystemManager.instance.player:
+	if not EcosystemManager or not EcosystemManager.player:
 		return INF
-	return get_distance_to(EcosystemManager.instance.player)
+	return get_distance_to(EcosystemManager.player)
 
 func should_flee() -> bool:
 	return get_player_distance() < flee_range

@@ -10,13 +10,15 @@ func _ready() -> void:
 	# Add sun to group for ecosystem manager to control
 	sun.add_to_group("sun")
 
-	# Wait one frame for terrain to generate
+	# Wait for terrain to generate and collision to be ready
 	await get_tree().process_frame
+	await get_tree().process_frame
+	await get_tree().physics_frame
 
 	# Initialize ecosystem manager references
-	if EcosystemManager.instance:
-		EcosystemManager.instance.terrain = terrain
-		EcosystemManager.instance.player = player
+	if EcosystemManager:
+		EcosystemManager.terrain = terrain
+		EcosystemManager.player = player
 
 	# Initialize vegetation spawner
 	if vegetation_spawner and terrain and player:

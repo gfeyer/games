@@ -8,10 +8,10 @@ class_name VegetationSpawner
 @export var unload_distance: int = 5
 
 # Density settings (items per chunk)
-@export var trees_per_chunk: int = 15
-@export var bushes_per_chunk: int = 25
-@export var rocks_per_chunk: int = 10
-@export var flowers_per_chunk: int = 40
+@export var trees_per_chunk: int = 40
+@export var bushes_per_chunk: int = 50
+@export var rocks_per_chunk: int = 20
+@export var flowers_per_chunk: int = 80
 @export var enable_grass: bool = true
 
 # Scene references

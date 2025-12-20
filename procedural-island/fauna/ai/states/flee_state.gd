@@ -33,10 +33,10 @@ func update(delta: float) -> void:
 	animal.move_toward_position(flee_target, animal.run_speed, delta)
 
 func calculate_flee_direction() -> void:
-	if not EcosystemManager.instance or not EcosystemManager.instance.player:
+	if not EcosystemManager or not EcosystemManager.player:
 		return
 
-	var player = EcosystemManager.instance.player
+	var player = EcosystemManager.player
 	var away_direction = (animal.global_position - player.global_position).normalized()
 	away_direction.y = 0
 

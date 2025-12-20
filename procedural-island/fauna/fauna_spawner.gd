@@ -3,9 +3,9 @@ class_name FaunaSpawner
 
 ## Spawns and manages animals across the terrain
 
-@export var spawn_radius: float = 300.0  # Radius around player to maintain animals
-@export var max_deer: int = 15
-@export var spawn_interval: float = 2.0  # Seconds between spawn attempts
+@export var spawn_radius: float = 150.0  # Radius around player to maintain animals
+@export var max_deer: int = 30
+@export var spawn_interval: float = 1.0  # Seconds between spawn attempts
 
 # Scene references
 var deer_scene: PackedScene
@@ -31,8 +31,12 @@ func initialize(p_terrain: TerrainGenerator, p_player: Node3D) -> void:
 	terrain = p_terrain
 	player = p_player
 
+	# Defer initial spawn to ensure everything is ready
+	call_deferred("_initial_spawn")
+
+func _initial_spawn() -> void:
 	# Initial spawn of some animals
-	for i in range(5):
+	for i in range(15):
 		spawn_deer()
 
 func _process(delta: float) -> void:
@@ -60,10 +64,9 @@ func spawn_deer() -> void:
 		return
 
 	var deer = deer_scene.instantiate()
+	add_child(deer)
 	deer.global_position = spawn_pos
 	deer.rotation.y = rng.randf() * TAU
-
-	add_child(deer)
 	deer_list.append(deer)
 
 func get_valid_spawn_position(preferred_biome: TerrainGenerator.Biome) -> Vector3:
@@ -77,7 +80,7 @@ func get_valid_spawn_position(preferred_biome: TerrainGenerator.Biome) -> Vector
 
 		# Random position around player but not too close
 		var angle = rng.randf() * TAU
-		var distance = rng.randf_range(spawn_radius * 0.3, spawn_radius * 0.8)
+		var distance = rng.randf_range(spawn_radius * 0.2, spawn_radius * 0.7)
 		var offset = Vector3(cos(angle) * distance, 0, sin(angle) * distance)
 		var pos = player.global_position + offset
 
