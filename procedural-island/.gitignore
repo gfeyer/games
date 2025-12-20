@@ -1,0 +1,16 @@
+# Godot 4+ specific ignores
+.godot/
+
+# Godot-specific ignores
+*.import
+export_presets.cfg.backup
+
+# Imported textures and samples
+.import/
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db

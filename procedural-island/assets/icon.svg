@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90d9"/>
+      <stop offset="100%" style="stop-color:#87ceeb"/>
+    </linearGradient>
+    <linearGradient id="island" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#228b22"/>
+      <stop offset="50%" style="stop-color:#32cd32"/>
+      <stop offset="100%" style="stop-color:#f4a460"/>
+    </linearGradient>
+  </defs>
+  <!-- Background sky -->
+  <rect width="128" height="128" fill="url(#sky)"/>
+  <!-- Water -->
+  <ellipse cx="64" cy="90" rx="55" ry="20" fill="#1e90ff" opacity="0.8"/>
+  <!-- Island -->
+  <path d="M 20,85 Q 35,40 64,35 Q 93,40 108,85 Q 64,95 20,85" fill="url(#island)"/>
+  <!-- Mountain peak -->
+  <path d="M 55,50 L 64,30 L 73,50 Z" fill="#808080"/>
+  <path d="M 58,45 L 64,30 L 70,45 Z" fill="#ffffff"/>
+  <!-- Sun -->
+  <circle cx="100" cy="25" r="12" fill="#ffd700"/>
+</svg>
