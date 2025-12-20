@@ -1,10 +1,10 @@
 extends Node3D
 class_name TerrainGenerator
 
-@export var island_size: float = 100.0
-@export var height_scale: float = 20.0
-@export var grid_resolution: int = 100
-@export var noise_frequency: float = 0.02
+@export var island_size: float = 10000.0
+@export var height_scale: float = 2000.0
+@export var grid_resolution: int = 400
+@export var noise_frequency: float = 0.0002
 @export var noise_octaves: int = 4
 @export var terrain_seed: int = 0  # 0 = random
 
@@ -209,12 +209,12 @@ func get_spawn_position() -> Vector3:
 	# Search in a grid near center
 	for x in range(-5, 6):
 		for z in range(-5, 6):
-			var world_x = x * 2.0
-			var world_z = z * 2.0
+			var world_x = x * 200.0
+			var world_z = z * 200.0
 			var h = get_height_at(world_x, world_z)
-			if h > best_height and h > 1.0:  # Above water level
+			if h > best_height and h > 100.0:  # Above water level
 				best_height = h
-				best_pos = Vector3(world_x, h + 2.0, world_z)
+				best_pos = Vector3(world_x, h + 0.5, world_z)
 
 	# Fallback to center if no good spot found
 	if best_height < 0:

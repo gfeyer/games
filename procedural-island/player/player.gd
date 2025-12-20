@@ -3,9 +3,9 @@ class_name Player
 
 @export var move_speed: float = 5.0
 @export var sprint_speed: float = 10.0
-@export var jump_velocity: float = 6.0
+@export var jump_velocity: float = 1.0
 @export var mouse_sensitivity: float = 0.002
-@export var gravity: float = 20.0
+@export var gravity: float = 5.0
 
 var camera: Camera3D
 var camera_pivot: Node3D
@@ -15,7 +15,7 @@ func _ready() -> void:
 	camera_pivot = Node3D.new()
 	camera_pivot.name = "CameraPivot"
 	add_child(camera_pivot)
-	camera_pivot.position.y = 1.6  # Eye height
+	camera_pivot.position.y = 0.16  # Eye height (scaled for smaller player)
 
 	# Create camera
 	camera = Camera3D.new()
