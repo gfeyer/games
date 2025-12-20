@@ -8,11 +8,17 @@ class_name VegetationSpawner
 @export var unload_distance: int = 3
 
 # Density settings (items per chunk)
-@export var trees_per_chunk: int = 25
-@export var bushes_per_chunk: int = 30
-@export var rocks_per_chunk: int = 15
-@export var flowers_per_chunk: int = 40
+@export var trees_per_chunk: int = 120
+@export var bushes_per_chunk: int = 50
+@export var rocks_per_chunk: int = 20
+@export var flowers_per_chunk: int = 60
 @export var enable_grass: bool = false  # Disabled for performance
+
+# Visibility culling distances
+@export var tree_view_distance: float = 200.0
+@export var bush_view_distance: float = 100.0
+@export var rock_view_distance: float = 150.0
+@export var flower_view_distance: float = 60.0
 
 # Scene references
 var pine_tree_scene: PackedScene
@@ -56,6 +62,15 @@ func _ready() -> void:
 func initialize(p_terrain: TerrainGenerator, p_player: Node3D) -> void:
 	terrain = p_terrain
 	player = p_player
+
+## Apply visibility range to all MeshInstance3D children
+func apply_visibility_range(node: Node3D, max_distance: float) -> void:
+	for child in node.get_children():
+		if child is MeshInstance3D:
+			child.visibility_range_end = max_distance
+			child.visibility_range_fade_mode = GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+		elif child.get_child_count() > 0:
+			apply_visibility_range(child, max_distance)
 
 func _process(_delta: float) -> void:
 	if not player or not terrain:
@@ -196,6 +211,7 @@ func spawn_tree_at(x: float, z: float) -> Node3D:
 	tree.scale *= scale_factor
 
 	add_child(tree)
+	apply_visibility_range(tree, tree_view_distance)
 	return tree
 
 func spawn_bush_at(x: float, z: float) -> Node3D:
@@ -221,6 +237,7 @@ func spawn_bush_at(x: float, z: float) -> Node3D:
 	bush.scale *= scale_factor
 
 	add_child(bush)
+	apply_visibility_range(bush, bush_view_distance)
 	return bush
 
 func spawn_rock_at(x: float, z: float) -> Node3D:
@@ -251,6 +268,7 @@ func spawn_rock_at(x: float, z: float) -> Node3D:
 	rock.scale *= scale_factor
 
 	add_child(rock)
+	apply_visibility_range(rock, rock_view_distance)
 	return rock
 
 func spawn_flower_at(x: float, z: float) -> Node3D:
@@ -273,6 +291,7 @@ func spawn_flower_at(x: float, z: float) -> Node3D:
 	flower.scale *= scale_factor
 
 	add_child(flower)
+	apply_visibility_range(flower, flower_view_distance)
 	return flower
 
 func spawn_grass_chunk(chunk_pos: Vector2i) -> GrassMultiMesh:
