@@ -3,7 +3,7 @@ class_name FaunaSpawner
 
 ## Spawns and manages animals across the terrain
 
-@export var spawn_radius: float = 150.0  # Radius around player to maintain animals
+@export var spawn_radius: float = 50.0  # Radius around player to maintain animals
 @export var max_deer: int = 30
 @export var spawn_interval: float = 1.0  # Seconds between spawn attempts
 

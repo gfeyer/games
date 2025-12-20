@@ -3,9 +3,9 @@ class_name VegetationSpawner
 
 ## Spawns vegetation across the terrain using chunk-based loading
 
-@export var chunk_size: float = 200.0
-@export var load_distance: int = 3  # Chunks in each direction
-@export var unload_distance: int = 5
+@export var chunk_size: float = 100.0
+@export var load_distance: int = 4  # Chunks in each direction
+@export var unload_distance: int = 6
 
 # Density settings (items per chunk)
 @export var trees_per_chunk: int = 40

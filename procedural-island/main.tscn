@@ -39,6 +39,10 @@ light_energy = 1.2
 shadow_enabled = true
 
 [node name="TerrainGenerator" parent="." instance=ExtResource("2_terrain")]
+island_size = 2000.0
+height_scale = 400.0
+grid_resolution = 200
+noise_frequency = 0.001
 
 [node name="Player" parent="." instance=ExtResource("3_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)

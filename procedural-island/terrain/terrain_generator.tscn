@@ -4,9 +4,9 @@
 
 [node name="TerrainGenerator" type="Node3D"]
 script = ExtResource("1_terrain")
-island_size = 10000.0
-height_scale = 2000.0
-grid_resolution = 400
-noise_frequency = 0.0002
+island_size = 2000.0
+height_scale = 400.0
+grid_resolution = 200
+noise_frequency = 0.001
 noise_octaves = 4
 terrain_seed = 0
