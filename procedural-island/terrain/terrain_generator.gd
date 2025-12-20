@@ -1,6 +1,9 @@
 extends Node3D
 class_name TerrainGenerator
 
+## Biome types for vegetation/fauna placement
+enum Biome { WATER, BEACH, GRASS, ROCK, SNOW }
+
 @export var island_size: float = 10000.0
 @export var height_scale: float = 2000.0
 @export var grid_resolution: int = 400
@@ -221,3 +224,47 @@ func get_spawn_position() -> Vector3:
 		best_pos = Vector3(0, get_height_at(0, 0) + 2.0, 0)
 
 	return best_pos
+
+## Get the biome type at a world position
+func get_biome_at(x: float, z: float) -> Biome:
+	var height = get_height_at(x, z)
+	var normalized = (height / height_scale) + 0.3
+	normalized = clamp(normalized, 0.0, 1.0)
+
+	if normalized < SHALLOW_WATER_HEIGHT:
+		return Biome.WATER
+	elif normalized < BEACH_HEIGHT:
+		return Biome.BEACH
+	elif normalized < GRASS_HEIGHT:
+		return Biome.GRASS
+	elif normalized < ROCK_HEIGHT:
+		return Biome.ROCK
+	else:
+		return Biome.SNOW
+
+## Get the terrain slope at a position (for placement validation)
+func get_slope_at(x: float, z: float, sample_dist: float = 5.0) -> float:
+	var h_center = get_height_at(x, z)
+	var h_px = get_height_at(x + sample_dist, z)
+	var h_nx = get_height_at(x - sample_dist, z)
+	var h_pz = get_height_at(x, z + sample_dist)
+	var h_nz = get_height_at(x, z - sample_dist)
+
+	var slope_x = abs(h_px - h_nx) / (2.0 * sample_dist)
+	var slope_z = abs(h_pz - h_nz) / (2.0 * sample_dist)
+
+	return max(slope_x, slope_z)
+
+## Get normalized height (0-1) at a position
+func get_normalized_height_at(x: float, z: float) -> float:
+	var height = get_height_at(x, z)
+	var normalized = (height / height_scale) + 0.3
+	return clamp(normalized, 0.0, 1.0)
+
+## Check if a position is valid for vegetation (above water, not too steep)
+func is_valid_vegetation_spot(x: float, z: float, max_slope: float = 0.5) -> bool:
+	var biome = get_biome_at(x, z)
+	if biome == Biome.WATER:
+		return false
+	var slope = get_slope_at(x, z)
+	return slope <= max_slope

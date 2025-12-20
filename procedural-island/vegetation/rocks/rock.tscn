@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rock"]
+albedo_color = Color(0.45, 0.42, 0.4, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="BoxMesh_rock"]
+size = Vector3(0.12, 0.08, 0.1)
+material = SubResource("StandardMaterial3D_rock")
+
+[node name="Rock" type="Node3D"]
+
+[node name="RockMesh" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 0.04, 0)
+mesh = SubResource("BoxMesh_rock")
