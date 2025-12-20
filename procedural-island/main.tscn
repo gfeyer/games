@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://main001"]
+[gd_scene load_steps=9 format=3 uid="uid://main001"]
 
 [ext_resource type="Script" uid="uid://lm60bkaqn2rh" path="res://main.gd" id="1_main"]
 [ext_resource type="PackedScene" uid="uid://terrain001" path="res://terrain/terrain_generator.tscn" id="2_terrain"]
 [ext_resource type="PackedScene" uid="uid://player001" path="res://player/player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://vegetation/vegetation_spawner.tscn" id="4_vegetation"]
+[ext_resource type="PackedScene" path="res://fauna/fauna_spawner.tscn" id="5_fauna"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
 sky_top_color = Color(0.4, 0.6, 0.9, 1)
@@ -43,3 +44,5 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
 
 [node name="VegetationSpawner" parent="." instance=ExtResource("4_vegetation")]
+
+[node name="FaunaSpawner" parent="." instance=ExtResource("5_fauna")]

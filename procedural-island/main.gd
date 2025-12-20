@@ -3,6 +3,7 @@ extends Node3D
 @onready var terrain: TerrainGenerator = $TerrainGenerator
 @onready var player: Player = $Player
 @onready var vegetation_spawner: VegetationSpawner = $VegetationSpawner
+@onready var fauna_spawner: FaunaSpawner = $FaunaSpawner
 @onready var sun: DirectionalLight3D = $DirectionalLight3D
 
 func _ready() -> void:
@@ -26,3 +27,7 @@ func _ready() -> void:
 		var spawn_pos = terrain.get_spawn_position()
 		player.global_position = spawn_pos
 		print("Player spawned at: ", spawn_pos)
+
+	# Initialize fauna spawner (after player is positioned)
+	if fauna_spawner and terrain and player:
+		fauna_spawner.initialize(terrain, player)
