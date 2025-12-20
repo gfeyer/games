@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bush"]
+albedo_color = Color(0.15, 0.38, 0.1, 1)
+roughness = 0.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_bush"]
+radius = 0.07
+height = 0.1
+material = SubResource("StandardMaterial3D_bush")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_berry"]
+albedo_color = Color(0.7, 0.15, 0.2, 1)
+roughness = 0.4
+metallic_specular = 0.3
+
+[sub_resource type="SphereMesh" id="SphereMesh_berry"]
+radius = 0.01
+height = 0.012
+material = SubResource("StandardMaterial3D_berry")
+
+[node name="BushBerry" type="Node3D"]
+
+[node name="Bush1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("SphereMesh_bush")
+
+[node name="Bush2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0.05, 0.045, 0.03)
+mesh = SubResource("SphereMesh_bush")
+
+[node name="Berry1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.04, 0.08, 0.02)
+mesh = SubResource("SphereMesh_berry")
+
+[node name="Berry2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03, 0.07, -0.01)
+mesh = SubResource("SphereMesh_berry")
+
+[node name="Berry3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0.06, -0.04)
+mesh = SubResource("SphereMesh_berry")
