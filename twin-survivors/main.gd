@@ -15,9 +15,9 @@ var CreditScene: PackedScene = preload("res://pickup/credit.tscn")
 @onready var camera: Camera2D = $Camera2D
 @onready var ambient_particles: GPUParticles2D = $AmbientParticles
 
-# Spawning
+# Spawning - FAST to get 30-40 on screen at once
 var spawn_timer: float = 0.0
-var spawn_delay: float = 1.5  # Seconds between spawns
+var spawn_delay: float = 0.1  # Very fast spawning
 var viewport_size: Vector2
 
 # Screen shake
@@ -61,7 +61,7 @@ func handle_spawning(delta: float) -> void:
 		spawn_zombie()
 		spawn_timer = spawn_delay
 		# Decrease spawn delay as wave progresses
-		spawn_delay = max(0.3, spawn_delay * 0.98)
+		spawn_delay = max(0.05, spawn_delay * 0.98)  # Can go very fast
 
 
 func spawn_zombie() -> void:
@@ -115,13 +115,22 @@ func _on_zombie_killed(_position: Vector2) -> void:
 
 
 func _on_wave_started(wave_number: int) -> void:
-	spawn_delay = 1.5  # Reset spawn delay
+	spawn_delay = 0.1  # Fast spawning - 30-40 on screen at once
 	spawn_timer = 0.5  # Small delay before first spawn
+
+	# Respawn all players at wave start
+	respawn_all_players()
 
 
 func _on_wave_ended(wave_number: int) -> void:
-	# Show shop after delay (handled in GameManager)
-	pass
+	# Auto-collect all remaining credits
+	collect_all_credits()
+
+
+func collect_all_credits() -> void:
+	for pickup in pickups_container.get_children():
+		if pickup is CreditPickup and not pickup.collected:
+			pickup.collect()
 
 
 func _on_game_over() -> void:
@@ -143,6 +152,20 @@ func handle_screen_shake(delta: float) -> void:
 
 func add_screen_shake(amount: float) -> void:
 	shake_amount = max(shake_amount, amount)
+
+
+func respawn_all_players() -> void:
+	# Respawn all dead players at wave start
+	GameManager.players_alive = 0
+	for player in players_container.get_children():
+		if player is Player:
+			player.reset()
+			# Reposition to starting positions
+			if player.player_id == 1:
+				player.position = Vector2(640, 720)
+			else:
+				player.position = Vector2(1920, 720)
+			GameManager.players_alive += 1
 
 
 func restart_game() -> void:

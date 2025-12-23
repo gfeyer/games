@@ -48,7 +48,7 @@ var players_alive: int = 2
 # Base stats
 const BASE_FIRE_RATE: float = 1.0  # seconds between shots
 const BASE_DAMAGE: int = 1
-const BASE_MOVE_SPEED: float = 200.0
+const BASE_MOVE_SPEED: float = 280.0
 const BASE_PLAYER_HEALTH: int = 100
 
 # Wave scaling - MASSIVE WAVES

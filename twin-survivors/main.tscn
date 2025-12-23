@@ -1,8 +1,8 @@
 [gd_scene load_steps=7 format=3 uid="uid://jipf6b7koute"]
 
 [ext_resource type="Script" uid="uid://dfn3suvhx5ygo" path="res://main.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://ui/hud.tscn" id="3_hud"]
+[ext_resource type="PackedScene" uid="uid://cplayer001" path="res://player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://chud001" path="res://ui/hud.tscn" id="3_hud"]
 
 [sub_resource type="Gradient" id="Gradient_bg"]
 colors = PackedColorArray(0.03, 0.03, 0.08, 1, 0.06, 0.06, 0.12, 1)
@@ -15,7 +15,7 @@ fill_to = Vector2(0.5, 1)
 
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_ambient"]
 emission_shape = 3
-emission_box_extents = Vector3(640, 360, 1)
+emission_box_extents = Vector3(1280, 720, 1)
 direction = Vector3(0, 1, 0)
 spread = 20.0
 initial_velocity_min = 5.0
@@ -28,15 +28,15 @@ color = Color(0.5, 0.5, 0.6, 0.3)
 script = ExtResource("1_main")
 
 [node name="Background" type="Sprite2D" parent="."]
-position = Vector2(640, 360)
-scale = Vector2(10, 10)
+position = Vector2(1280, 720)
+scale = Vector2(20, 20)
 texture = SubResource("GradientTexture2D_bg")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(640, 360)
+position = Vector2(1280, 720)
 
 [node name="AmbientParticles" type="GPUParticles2D" parent="."]
-position = Vector2(640, 360)
+position = Vector2(1280, 720)
 amount = 50
 lifetime = 8.0
 process_material = SubResource("ParticleProcessMaterial_ambient")
@@ -44,10 +44,10 @@ process_material = SubResource("ParticleProcessMaterial_ambient")
 [node name="Players" type="Node2D" parent="."]
 
 [node name="Player1" parent="Players" instance=ExtResource("2_player")]
-position = Vector2(400, 360)
+position = Vector2(640, 720)
 
 [node name="Player2" parent="Players" instance=ExtResource("2_player")]
-position = Vector2(880, 360)
+position = Vector2(1920, 720)
 player_id = 2
 
 [node name="Zombies" type="Node2D" parent="."]
