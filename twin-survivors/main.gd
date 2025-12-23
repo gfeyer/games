@@ -26,6 +26,7 @@ var shake_decay: float = 5.0
 
 
 func _ready() -> void:
+	add_to_group("main")
 	viewport_size = get_viewport_rect().size
 
 	# Connect signals
@@ -94,9 +95,9 @@ func get_spawn_position() -> Vector2:
 	return Vector2.ZERO
 
 
-func _on_player_shot(spawn_pos: Vector2, direction: Vector2) -> void:
+func _on_player_shot(spawn_pos: Vector2, direction: Vector2, player_id: int) -> void:
 	var bullet = BulletScene.instantiate()
-	bullet.setup(spawn_pos, direction)
+	bullet.setup(spawn_pos, direction, player_id)
 	projectiles_container.add_child(bullet)
 
 

@@ -9,6 +9,7 @@ signal hit(position: Vector2)
 var direction: Vector2 = Vector2.RIGHT
 var damage: int = 1
 var aoe_radius: float = 0.0
+var owner_player_id: int = 1
 
 # Visual references
 @onready var trail_particles: GPUParticles2D = $TrailParticles
@@ -19,8 +20,6 @@ var time_alive: float = 0.0
 
 
 func _ready() -> void:
-	damage = GameManager.get_damage()
-	aoe_radius = GameManager.get_aoe_radius()
 	add_to_group("projectiles")
 
 	# Connect body entered signal
@@ -40,10 +39,13 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 
-func setup(spawn_pos: Vector2, dir: Vector2) -> void:
+func setup(spawn_pos: Vector2, dir: Vector2, player_id: int) -> void:
 	global_position = spawn_pos
 	direction = dir.normalized()
 	rotation = direction.angle()
+	owner_player_id = player_id
+	damage = GameManager.get_damage(player_id)
+	aoe_radius = GameManager.get_aoe_radius(player_id)
 
 
 func _on_body_entered(body: Node2D) -> void:

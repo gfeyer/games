@@ -23,14 +23,11 @@ var zombies_to_spawn: int = 0
 var credits: int = 0
 var player_credits: Array[int] = [0, 0]  # Per-player credits during shop
 
-# Upgrades (shared between players)
-var upgrade_levels: Dictionary = {
-	"fire_rate": 0,      # 10% faster per level
-	"damage": 0,         # +1 damage per level
-	"aoe": 0,            # Unlock at level 1, bigger radius per level
-	"health_regen": 0,   # HP/sec regen
-	"move_speed": 0      # 5% faster per level
-}
+# Per-player upgrades
+var player_upgrade_levels: Array[Dictionary] = [
+	{ "fire_rate": 0, "damage": 0, "aoe": 0, "health_regen": 0, "move_speed": 0, "bomb": 0 },
+	{ "fire_rate": 0, "damage": 0, "aoe": 0, "health_regen": 0, "move_speed": 0, "bomb": 0 }
+]
 
 # Upgrade costs (increases each level)
 var upgrade_base_costs: Dictionary = {
@@ -38,7 +35,8 @@ var upgrade_base_costs: Dictionary = {
 	"damage": 75,
 	"aoe": 100,
 	"health_regen": 60,
-	"move_speed": 40
+	"move_speed": 40,
+	"bomb": 150
 }
 
 # Player tracking
@@ -68,9 +66,11 @@ func start_game() -> void:
 	zombies_alive = 0
 	players_alive = 2
 
-	# Reset upgrades
-	for key in upgrade_levels.keys():
-		upgrade_levels[key] = 0
+	# Reset per-player upgrades
+	player_upgrade_levels = [
+		{ "fire_rate": 0, "damage": 0, "aoe": 0, "health_regen": 0, "move_speed": 0, "bomb": 0 },
+		{ "fire_rate": 0, "damage": 0, "aoe": 0, "health_regen": 0, "move_speed": 0, "bomb": 0 }
+	]
 
 	current_state = GameState.PLAYING
 	game_started.emit()
@@ -135,9 +135,9 @@ func add_credits(amount: int) -> void:
 	credits_changed.emit(credits)
 
 
-func get_upgrade_cost(upgrade_name: String) -> int:
+func get_upgrade_cost(player_id: int, upgrade_name: String) -> int:
 	var base_cost = upgrade_base_costs.get(upgrade_name, 100)
-	var level = upgrade_levels.get(upgrade_name, 0)
+	var level = player_upgrade_levels[player_id - 1].get(upgrade_name, 0)
 	return int(base_cost * pow(1.5, level))
 
 
@@ -146,58 +146,59 @@ func get_player_credits(player_id: int) -> int:
 
 
 func can_player_afford_upgrade(player_id: int, upgrade_name: String) -> bool:
-	return player_credits[player_id - 1] >= get_upgrade_cost(upgrade_name)
+	return player_credits[player_id - 1] >= get_upgrade_cost(player_id, upgrade_name)
 
 
 func purchase_upgrade_for_player(player_id: int, upgrade_name: String) -> bool:
-	var cost = get_upgrade_cost(upgrade_name)
+	var cost = get_upgrade_cost(player_id, upgrade_name)
 	if player_credits[player_id - 1] < cost:
 		return false
 
 	player_credits[player_id - 1] -= cost
-	upgrade_levels[upgrade_name] += 1
+	player_upgrade_levels[player_id - 1][upgrade_name] += 1
 	return true
 
 
-# Legacy function for backwards compatibility
-func can_afford_upgrade(upgrade_name: String) -> bool:
-	return credits >= get_upgrade_cost(upgrade_name)
+func get_player_upgrade_level(player_id: int, upgrade_name: String) -> int:
+	return player_upgrade_levels[player_id - 1].get(upgrade_name, 0)
 
 
-func purchase_upgrade(upgrade_name: String) -> bool:
-	if not can_afford_upgrade(upgrade_name):
-		return false
-
-	var cost = get_upgrade_cost(upgrade_name)
-	credits -= cost
-	upgrade_levels[upgrade_name] += 1
-	credits_changed.emit(credits)
-	return true
-
-
-# Calculated stats based on upgrades
-func get_fire_rate() -> float:
-	var multiplier = pow(0.9, upgrade_levels["fire_rate"])  # 10% faster per level
+# Calculated stats based on per-player upgrades
+func get_fire_rate(player_id: int) -> float:
+	var level = player_upgrade_levels[player_id - 1]["fire_rate"]
+	var multiplier = pow(0.9, level)  # 10% faster per level
 	return BASE_FIRE_RATE * multiplier
 
 
-func get_damage() -> int:
-	return BASE_DAMAGE + upgrade_levels["damage"]
+func get_damage(player_id: int) -> int:
+	var level = player_upgrade_levels[player_id - 1]["damage"]
+	return BASE_DAMAGE + level
 
 
-func get_aoe_radius() -> float:
-	if upgrade_levels["aoe"] == 0:
+func get_aoe_radius(player_id: int) -> float:
+	var level = player_upgrade_levels[player_id - 1]["aoe"]
+	if level == 0:
 		return 0.0
-	return 30.0 + (upgrade_levels["aoe"] - 1) * 15.0  # 30, 45, 60, 75...
+	return 30.0 + (level - 1) * 15.0  # 30, 45, 60, 75...
 
 
-func get_move_speed() -> float:
-	var multiplier = 1.0 + upgrade_levels["move_speed"] * 0.05  # 5% faster per level
+func get_move_speed(player_id: int) -> float:
+	var level = player_upgrade_levels[player_id - 1]["move_speed"]
+	var multiplier = 1.0 + level * 0.05  # 5% faster per level
 	return BASE_MOVE_SPEED * multiplier
 
 
-func get_health_regen() -> float:
-	return upgrade_levels["health_regen"] * 2.0  # 2 HP/sec per level
+func get_health_regen(player_id: int) -> float:
+	var level = player_upgrade_levels[player_id - 1]["health_regen"]
+	return level * 2.0  # 2 HP/sec per level
+
+
+func has_bomb(player_id: int) -> bool:
+	return player_upgrade_levels[player_id - 1]["bomb"] > 0
+
+
+func get_bomb_level(player_id: int) -> int:
+	return player_upgrade_levels[player_id - 1]["bomb"]
 
 
 func register_player(player: Node) -> void:

@@ -3,7 +3,7 @@ class_name Player
 
 signal health_changed(current: int, max_health: int)
 signal died()
-signal shot_fired(position: Vector2, direction: Vector2)
+signal shot_fired(position: Vector2, direction: Vector2, player_id: int)
 
 # Player ID (1 or 2)
 @export var player_id: int = 1
@@ -13,6 +13,7 @@ var input_up: String
 var input_down: String
 var input_left: String
 var input_right: String
+var input_bomb: String
 
 # Stats
 var max_health: int = 100
@@ -23,6 +24,12 @@ var is_alive: bool = true
 var shoot_timer: float = 0.0
 var current_target: Node2D = null
 
+# Bomb ability
+var bomb_cooldown: float = 0.0
+const BOMB_COOLDOWN_TIME: float = 10.0
+const BOMB_RADIUS: float = 150.0
+const BOMB_DAMAGE: int = 5
+
 # Visual references
 @onready var body_sprite: Sprite2D = $BodySprite
 @onready var glow_sprite: Sprite2D = $GlowSprite
@@ -30,6 +37,7 @@ var current_target: Node2D = null
 @onready var muzzle_flash: GPUParticles2D = $MuzzleFlash
 @onready var damage_flash: AnimationPlayer = $AnimationPlayer
 @onready var trail_particles: GPUParticles2D = $TrailParticles
+@onready var bomb_particles: GPUParticles2D = $BombParticles
 
 # Colors
 const PLAYER_COLORS: Dictionary = {
@@ -50,6 +58,7 @@ func setup_input_actions() -> void:
 	input_down = "p%d_down" % player_id
 	input_left = "p%d_left" % player_id
 	input_right = "p%d_right" % player_id
+	input_bomb = "p%d_bomb" % player_id
 
 
 func setup_visuals() -> void:
@@ -70,6 +79,7 @@ func _physics_process(delta: float) -> void:
 	handle_movement(delta)
 	handle_targeting()
 	handle_shooting(delta)
+	handle_bomb(delta)
 	update_visuals()
 
 
@@ -87,7 +97,7 @@ func handle_movement(delta: float) -> void:
 
 	input_dir = input_dir.normalized()
 
-	var speed = GameManager.get_move_speed()
+	var speed = GameManager.get_move_speed(player_id)
 	velocity = input_dir * speed
 
 	# Enable trail when moving
@@ -143,7 +153,38 @@ func handle_shooting(delta: float) -> void:
 
 	if shoot_timer <= 0 and current_target:
 		shoot_at_target()
-		shoot_timer = GameManager.get_fire_rate()
+		shoot_timer = GameManager.get_fire_rate(player_id)
+
+
+func handle_bomb(delta: float) -> void:
+	if bomb_cooldown > 0:
+		bomb_cooldown -= delta
+
+	if not GameManager.has_bomb(player_id):
+		return
+
+	if Input.is_action_just_pressed(input_bomb) and bomb_cooldown <= 0:
+		trigger_bomb()
+		bomb_cooldown = BOMB_COOLDOWN_TIME
+
+
+func trigger_bomb() -> void:
+	# Damage all zombies in radius
+	var zombies = get_tree().get_nodes_in_group("zombies")
+	for zombie in zombies:
+		if is_instance_valid(zombie):
+			var dist = global_position.distance_to(zombie.global_position)
+			if dist <= BOMB_RADIUS:
+				zombie.take_damage(BOMB_DAMAGE)
+
+	# Visual explosion effect
+	if bomb_particles:
+		bomb_particles.restart()
+
+	# Screen shake via main scene
+	var main = get_tree().get_first_node_in_group("main")
+	if main and main.has_method("add_screen_shake"):
+		main.add_screen_shake(8.0)
 
 
 func shoot_at_target() -> void:
@@ -159,7 +200,7 @@ func shoot_at_target() -> void:
 		muzzle_flash.rotation = direction.angle()
 		muzzle_flash.restart()
 
-	shot_fired.emit(spawn_pos, direction)
+	shot_fired.emit(spawn_pos, direction, player_id)
 
 
 func take_damage(amount: int) -> void:
@@ -206,7 +247,7 @@ func update_visuals() -> void:
 func _process(delta: float) -> void:
 	# Health regen
 	if is_alive and current_health < max_health:
-		var regen = GameManager.get_health_regen()
+		var regen = GameManager.get_health_regen(player_id)
 		if regen > 0:
 			heal(int(regen * delta))
 
@@ -216,4 +257,5 @@ func reset() -> void:
 	is_alive = true
 	visible = true
 	set_physics_process(true)
+	bomb_cooldown = 0.0
 	health_changed.emit(current_health, max_health)

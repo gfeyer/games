@@ -175,6 +175,12 @@ layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
 text = "Move Speed Lv.1 - $40"
 
+[node name="BombButton" type="Button" parent="HBoxContainer/P1Panel/VBox/UpgradeList"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Bomb (E) Lv.1 - $150"
+
 [node name="P2Panel" type="Panel" parent="HBoxContainer"]
 custom_minimum_size = Vector2(380, 0)
 layout_mode = 2
@@ -245,6 +251,12 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
 text = "Move Speed Lv.1 - $40"
+
+[node name="BombButton" type="Button" parent="HBoxContainer/P2Panel/VBox/UpgradeList"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+text = "Bomb (Num0) Lv.1 - $150"
 
 [node name="ContinueButton" type="Button" parent="."]
 layout_mode = 1

@@ -17,8 +17,9 @@ var p2_buttons: Array[Button] = []
 var p1_selection: int = 0
 var p2_selection: int = 0
 
-const UPGRADE_NAMES: Array[String] = ["fire_rate", "damage", "aoe", "health_regen", "move_speed"]
-const UPGRADE_LABELS: Array[String] = ["Fire Rate", "Damage", "AOE Blast", "Health Regen", "Move Speed"]
+const UPGRADE_NAMES: Array[String] = ["fire_rate", "damage", "aoe", "health_regen", "move_speed", "bomb"]
+const UPGRADE_LABELS: Array[String] = ["Fire Rate", "Damage", "AOE Blast", "Health Regen", "Move Speed", "Bomb (E/Num0)"]
+const NUM_UPGRADES: int = 6
 
 
 func _ready() -> void:
@@ -28,18 +29,20 @@ func _ready() -> void:
 		$HBoxContainer/P1Panel/VBox/UpgradeList/DamageButton,
 		$HBoxContainer/P1Panel/VBox/UpgradeList/AOEButton,
 		$HBoxContainer/P1Panel/VBox/UpgradeList/RegenButton,
-		$HBoxContainer/P1Panel/VBox/UpgradeList/SpeedButton
+		$HBoxContainer/P1Panel/VBox/UpgradeList/SpeedButton,
+		$HBoxContainer/P1Panel/VBox/UpgradeList/BombButton
 	]
 	p2_buttons = [
 		$HBoxContainer/P2Panel/VBox/UpgradeList/FireRateButton,
 		$HBoxContainer/P2Panel/VBox/UpgradeList/DamageButton,
 		$HBoxContainer/P2Panel/VBox/UpgradeList/AOEButton,
 		$HBoxContainer/P2Panel/VBox/UpgradeList/RegenButton,
-		$HBoxContainer/P2Panel/VBox/UpgradeList/SpeedButton
+		$HBoxContainer/P2Panel/VBox/UpgradeList/SpeedButton,
+		$HBoxContainer/P2Panel/VBox/UpgradeList/BombButton
 	]
 
-	# Connect P1 button clicks
-	for i in range(5):
+	# Connect button clicks
+	for i in range(NUM_UPGRADES):
 		var upgrade_name = UPGRADE_NAMES[i]
 		p1_buttons[i].pressed.connect(func(): purchase_for_player(1, upgrade_name))
 		p2_buttons[i].pressed.connect(func(): purchase_for_player(2, upgrade_name))
@@ -53,20 +56,20 @@ func _process(_delta: float) -> void:
 
 	# P1 controls: W/S to navigate, Enter to buy
 	if Input.is_action_just_pressed("p1_up"):
-		p1_selection = (p1_selection - 1 + 5) % 5
+		p1_selection = (p1_selection - 1 + NUM_UPGRADES) % NUM_UPGRADES
 		update_selection_visuals()
 	if Input.is_action_just_pressed("p1_down"):
-		p1_selection = (p1_selection + 1) % 5
+		p1_selection = (p1_selection + 1) % NUM_UPGRADES
 		update_selection_visuals()
 	if Input.is_action_just_pressed("ui_accept"):
 		purchase_for_player(1, UPGRADE_NAMES[p1_selection])
 
 	# P2 controls: Arrow keys to navigate, Space to buy (using start_wave action)
 	if Input.is_action_just_pressed("p2_up"):
-		p2_selection = (p2_selection - 1 + 5) % 5
+		p2_selection = (p2_selection - 1 + NUM_UPGRADES) % NUM_UPGRADES
 		update_selection_visuals()
 	if Input.is_action_just_pressed("p2_down"):
-		p2_selection = (p2_selection + 1) % 5
+		p2_selection = (p2_selection + 1) % NUM_UPGRADES
 		update_selection_visuals()
 	if Input.is_action_just_pressed("start_wave"):
 		purchase_for_player(2, UPGRADE_NAMES[p2_selection])
@@ -86,24 +89,27 @@ func update_credits_display() -> void:
 
 
 func update_button_states() -> void:
-	for i in range(5):
+	for i in range(NUM_UPGRADES):
 		var upgrade_name = UPGRADE_NAMES[i]
-		var cost = GameManager.get_upgrade_cost(upgrade_name)
-		var level = GameManager.upgrade_levels[upgrade_name]
-		var label = "%s Lv.%d - $%d" % [UPGRADE_LABELS[i], level + 1, cost]
 
-		# P1 buttons
-		p1_buttons[i].text = label
+		# P1 buttons - use P1's upgrade level
+		var p1_cost = GameManager.get_upgrade_cost(1, upgrade_name)
+		var p1_level = GameManager.get_player_upgrade_level(1, upgrade_name)
+		var p1_label = "%s Lv.%d - $%d" % [UPGRADE_LABELS[i], p1_level + 1, p1_cost]
+		p1_buttons[i].text = p1_label
 		p1_buttons[i].disabled = not GameManager.can_player_afford_upgrade(1, upgrade_name)
 
-		# P2 buttons
-		p2_buttons[i].text = label
+		# P2 buttons - use P2's upgrade level
+		var p2_cost = GameManager.get_upgrade_cost(2, upgrade_name)
+		var p2_level = GameManager.get_player_upgrade_level(2, upgrade_name)
+		var p2_label = "%s Lv.%d - $%d" % [UPGRADE_LABELS[i], p2_level + 1, p2_cost]
+		p2_buttons[i].text = p2_label
 		p2_buttons[i].disabled = not GameManager.can_player_afford_upgrade(2, upgrade_name)
 
 
 func update_selection_visuals() -> void:
 	# Highlight selected button for each player
-	for i in range(5):
+	for i in range(NUM_UPGRADES):
 		# P1 selection (cyan highlight)
 		if i == p1_selection:
 			p1_buttons[i].add_theme_color_override("font_color", Color(0, 1, 1))
