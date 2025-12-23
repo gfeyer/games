@@ -4,12 +4,16 @@ extends CanvasLayer
 @onready var credits_label: Label = $CreditsContainer/HBoxContainer/CreditsLabel
 @onready var p1_health_bar: ProgressBar = $HealthBars/P1HealthBar
 @onready var p2_health_bar: ProgressBar = $HealthBars/P2HealthBar
+@onready var p1_bomb_label: Label = $HealthBars/P1BombLabel
+@onready var p2_bomb_label: Label = $HealthBars/P2BombLabel
 @onready var wave_announcement: Label = $WaveAnnouncement
 @onready var upgrade_shop: Control = $UpgradeShop
 @onready var game_over_panel: Control = $GameOverPanel
 
 var credits_display: int = 0
 var credits_target: int = 0
+var player1: Player = null
+var player2: Player = null
 
 
 func _ready() -> void:
@@ -26,8 +30,10 @@ func _ready() -> void:
 	for player in players:
 		if player is Player:
 			if player.player_id == 1:
+				player1 = player
 				player.health_changed.connect(_on_p1_health_changed)
 			elif player.player_id == 2:
+				player2 = player
 				player.health_changed.connect(_on_p2_health_changed)
 
 	# Initial state
@@ -47,6 +53,9 @@ func _process(delta: float) -> void:
 		else:
 			credits_display = max(credits_display - int(step), credits_target)
 		update_credits_display()
+
+	# Update bomb cooldown labels
+	update_bomb_cooldowns()
 
 
 func _on_wave_started(wave_number: int) -> void:
@@ -122,3 +131,29 @@ func show_wave_announcement(wave_number: int) -> void:
 func _on_restart_pressed() -> void:
 	game_over_panel.visible = false
 	get_parent().restart_game()
+
+
+func update_bomb_cooldowns() -> void:
+	# P1 bomb status
+	if p1_bomb_label:
+		if not GameManager.has_bomb(1):
+			p1_bomb_label.text = "P1 Bomb: --"
+			p1_bomb_label.modulate = Color(0.5, 0.5, 0.5)  # Gray when not owned
+		elif player1 and player1.get_bomb_cooldown() > 0:
+			p1_bomb_label.text = "P1 Bomb: %.1fs" % player1.get_bomb_cooldown()
+			p1_bomb_label.modulate = Color(1, 0.5, 0)  # Orange when on cooldown
+		else:
+			p1_bomb_label.text = "P1 Bomb: READY (E)"
+			p1_bomb_label.modulate = Color(0, 1, 0.5)  # Green when ready
+
+	# P2 bomb status
+	if p2_bomb_label:
+		if not GameManager.has_bomb(2):
+			p2_bomb_label.text = "P2 Bomb: --"
+			p2_bomb_label.modulate = Color(0.5, 0.5, 0.5)  # Gray when not owned
+		elif player2 and player2.get_bomb_cooldown() > 0:
+			p2_bomb_label.text = "P2 Bomb: %.1fs" % player2.get_bomb_cooldown()
+			p2_bomb_label.modulate = Color(1, 0.5, 0)  # Orange when on cooldown
+		else:
+			p2_bomb_label.text = "P2 Bomb: READY (Num0)"
+			p2_bomb_label.modulate = Color(0, 1, 0.5)  # Green when ready

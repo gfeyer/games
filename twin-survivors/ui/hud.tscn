@@ -105,6 +105,18 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_p2_health")
 value = 100.0
 show_percentage = false
 
+[node name="P1BombLabel" type="Label" parent="HealthBars"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "P1 Bomb: --"
+
+[node name="P2BombLabel" type="Label" parent="HealthBars"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.5, 0, 1)
+theme_override_font_sizes/font_size = 14
+text = "P2 Bomb: --"
+
 [node name="WaveAnnouncement" type="Label" parent="."]
 anchors_preset = 8
 anchor_left = 0.5

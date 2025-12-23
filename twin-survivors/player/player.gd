@@ -27,8 +27,11 @@ var current_target: Node2D = null
 # Bomb ability
 var bomb_cooldown: float = 0.0
 const BOMB_COOLDOWN_TIME: float = 10.0
-const BOMB_RADIUS: float = 150.0
+const BOMB_RADIUS: float = 350.0  # Large radius
 const BOMB_DAMAGE: int = 5
+
+# Bomb visual
+@onready var bomb_radius_indicator: Node2D = $BombRadiusIndicator
 
 # Visual references
 @onready var body_sprite: Sprite2D = $BodySprite
@@ -169,6 +172,13 @@ func handle_bomb(delta: float) -> void:
 
 
 func trigger_bomb() -> void:
+	# Show radius indicator
+	if bomb_radius_indicator:
+		bomb_radius_indicator.visible = true
+		var tween = create_tween()
+		tween.tween_property(bomb_radius_indicator, "modulate:a", 0.0, 0.4).from(0.6)
+		tween.tween_callback(func(): bomb_radius_indicator.visible = false)
+
 	# Damage all zombies in radius
 	var zombies = get_tree().get_nodes_in_group("zombies")
 	for zombie in zombies:
@@ -184,7 +194,7 @@ func trigger_bomb() -> void:
 	# Screen shake via main scene
 	var main = get_tree().get_first_node_in_group("main")
 	if main and main.has_method("add_screen_shake"):
-		main.add_screen_shake(8.0)
+		main.add_screen_shake(12.0)
 
 
 func shoot_at_target() -> void:
@@ -259,3 +269,7 @@ func reset() -> void:
 	set_physics_process(true)
 	bomb_cooldown = 0.0
 	health_changed.emit(current_health, max_health)
+
+
+func get_bomb_cooldown() -> float:
+	return bomb_cooldown
