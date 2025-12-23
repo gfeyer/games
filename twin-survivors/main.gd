@@ -101,14 +101,18 @@ func _on_player_shot(spawn_pos: Vector2, direction: Vector2, player_id: int) -> 
 	projectiles_container.add_child(bullet)
 
 
-func _on_zombie_died(position: Vector2) -> void:
-	# Spawn credit pickup
-	var credit = CreditScene.instantiate()
-	credit.global_position = position
-	pickups_container.add_child(credit)
+func _on_zombie_died(pos: Vector2) -> void:
+	# Spawn credit pickup (deferred to avoid physics query errors)
+	call_deferred("_spawn_credit", pos)
 
 	# Screen shake
 	add_screen_shake(2.0)
+
+
+func _spawn_credit(pos: Vector2) -> void:
+	var credit = CreditScene.instantiate()
+	credit.global_position = pos
+	pickups_container.add_child(credit)
 
 
 func _on_zombie_killed(_position: Vector2) -> void:

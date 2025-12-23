@@ -19,6 +19,7 @@ var input_bomb: String
 var max_health: int = 100
 var current_health: int = 100
 var is_alive: bool = true
+var regen_accumulator: float = 0.0  # Accumulate fractional HP
 
 # Shooting
 var shoot_timer: float = 0.0
@@ -29,6 +30,7 @@ var bomb_cooldown: float = 0.0
 const BOMB_COOLDOWN_TIME: float = 10.0
 const BOMB_RADIUS: float = 350.0  # Large radius
 const BOMB_DAMAGE: int = 5
+const AUTO_BOMB_THRESHOLD: int = 5  # Auto-trigger when this many enemies are close
 
 # Bomb visual
 @onready var bomb_radius_indicator: Node2D = $BombRadiusIndicator
@@ -166,9 +168,28 @@ func handle_bomb(delta: float) -> void:
 	if not GameManager.has_bomb(player_id):
 		return
 
+	# Manual trigger
 	if Input.is_action_just_pressed(input_bomb) and bomb_cooldown <= 0:
 		trigger_bomb()
 		bomb_cooldown = BOMB_COOLDOWN_TIME
+		return
+
+	# Auto-trigger when surrounded by enemies
+	if bomb_cooldown <= 0:
+		var enemies_in_range = count_enemies_in_radius(BOMB_RADIUS)
+		if enemies_in_range >= AUTO_BOMB_THRESHOLD:
+			trigger_bomb()
+			bomb_cooldown = BOMB_COOLDOWN_TIME
+
+
+func count_enemies_in_radius(radius: float) -> int:
+	var count = 0
+	var zombies = get_tree().get_nodes_in_group("zombies")
+	for zombie in zombies:
+		if is_instance_valid(zombie):
+			if global_position.distance_to(zombie.global_position) <= radius:
+				count += 1
+	return count
 
 
 func trigger_bomb() -> void:
@@ -255,11 +276,15 @@ func update_visuals() -> void:
 
 
 func _process(delta: float) -> void:
-	# Health regen
+	# Health regen (accumulate fractional HP)
 	if is_alive and current_health < max_health:
 		var regen = GameManager.get_health_regen(player_id)
 		if regen > 0:
-			heal(int(regen * delta))
+			regen_accumulator += regen * delta
+			if regen_accumulator >= 1.0:
+				var heal_amount = int(regen_accumulator)
+				heal(heal_amount)
+				regen_accumulator -= heal_amount
 
 
 func reset() -> void:
@@ -268,6 +293,7 @@ func reset() -> void:
 	visible = true
 	set_physics_process(true)
 	bomb_cooldown = 0.0
+	regen_accumulator = 0.0
 	health_changed.emit(current_health, max_health)
 
 

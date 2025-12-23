@@ -96,6 +96,10 @@ func destroy() -> void:
 	# Stop moving
 	set_physics_process(false)
 
+	# Disable collision (deferred to avoid physics query errors)
+	set_deferred("monitoring", false)
+	$CollisionShape2D.set_deferred("disabled", true)
+
 	# Hide bullet sprite
 	$BulletSprite.visible = false
 

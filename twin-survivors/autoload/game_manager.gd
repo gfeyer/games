@@ -190,7 +190,7 @@ func get_move_speed(player_id: int) -> float:
 
 func get_health_regen(player_id: int) -> float:
 	var level = player_upgrade_levels[player_id - 1]["health_regen"]
-	return level * 2.0  # 2 HP/sec per level
+	return level * 15.0  # 15 HP/sec per level
 
 
 func has_bomb(player_id: int) -> bool:

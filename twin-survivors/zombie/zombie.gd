@@ -13,6 +13,7 @@ var current_health: int
 var is_alive: bool = true
 var target: Node2D = null
 
+
 # Wobble animation
 var wobble_offset: float = 0.0
 var wobble_speed: float = 8.0
@@ -44,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	update_visuals(delta)
 
 
-func find_target() -> void:
+func find_nearest_player() -> Node2D:
 	var players = get_tree().get_nodes_in_group("players")
 	var nearest: Node2D = null
 	var nearest_dist: float = INF
@@ -59,7 +60,11 @@ func find_target() -> void:
 			nearest_dist = dist
 			nearest = player
 
-	target = nearest
+	return nearest
+
+
+func find_target() -> void:
+	target = find_nearest_player()
 
 
 func move_toward_target(delta: float) -> void:
@@ -96,7 +101,7 @@ func take_damage(amount: int) -> void:
 	if body_sprite:
 		var tween = create_tween()
 		tween.tween_property(body_sprite, "modulate", Color.WHITE, 0.05)
-		tween.tween_property(body_sprite, "modulate", Color(0.4, 0.9, 0.3), 0.1)
+		tween.tween_property(body_sprite, "modulate", Color(0.9, 0.2, 0.2), 0.1)
 
 	if current_health <= 0:
 		die()
