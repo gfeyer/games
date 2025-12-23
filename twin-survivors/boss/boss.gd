@@ -67,6 +67,18 @@ func setup(wave: int) -> void:
 	wave_number = wave
 	current_health = base_health + (wave * health_per_wave)
 
+	# Scale aggression with wave - boss_wave_index is 1, 2, 3, 4... for waves 3, 6, 9, 12...
+	var boss_wave_index = wave / 3
+
+	# Damage scales: 25, 30, 35, 40... (+5 per boss wave)
+	damage = 25 + (boss_wave_index - 1) * 5
+
+	# Speed scales: 180, 198, 216... (+10% per boss wave)
+	speed = 180.0 * (1.0 + (boss_wave_index - 1) * 0.1)
+
+	# Charge speed scales: 500, 550, 600... (+10% per boss wave)
+	charge_speed = 500.0 * (1.0 + (boss_wave_index - 1) * 0.1)
+
 
 func _physics_process(delta: float) -> void:
 	if not is_alive:
