@@ -157,9 +157,13 @@ func _on_wave_started(wave_number: int) -> void:
 	# Respawn all players at wave start
 	respawn_all_players()
 
-	# Spawn boss on boss waves (every 3 waves starting at wave 3)
+	# Spawn boss(es) on boss waves (every 3 waves starting at wave 3)
+	# Double the number of bosses each boss wave: 1, 2, 4, 8...
 	if GameManager.is_boss_wave(wave_number):
-		call_deferred("spawn_boss", wave_number)
+		var boss_wave_index = wave_number / 3  # 1, 2, 3, 4...
+		var num_bosses = int(pow(2, boss_wave_index - 1))  # 1, 2, 4, 8...
+		for i in range(num_bosses):
+			call_deferred("spawn_boss", wave_number)
 
 
 func _on_wave_ended(_wave_number: int) -> void:

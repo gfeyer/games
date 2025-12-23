@@ -24,7 +24,7 @@ var zombies_alive: int = 0
 var zombies_to_spawn: int = 0
 
 # Boss tracking
-var boss_alive: bool = false
+var bosses_alive: int = 0
 
 # Collection Phase
 var collection_time_remaining: float = 0.0
@@ -85,7 +85,7 @@ func start_game() -> void:
 	player_credits = [0, 0]
 	zombies_alive = 0
 	zombies_to_spawn = 0
-	boss_alive = false
+	bosses_alive = 0
 	collection_time_remaining = 0.0
 	players_alive = 2
 
@@ -127,8 +127,8 @@ func zombie_died(position: Vector2) -> void:
 
 
 func check_wave_complete() -> void:
-	# Wave is complete when all zombies are dead and boss is dead (if applicable)
-	if zombies_alive <= 0 and zombies_to_spawn <= 0 and not boss_alive:
+	# Wave is complete when all zombies and bosses are dead
+	if zombies_alive <= 0 and zombies_to_spawn <= 0 and bosses_alive <= 0:
 		wave_complete()
 
 
@@ -253,12 +253,12 @@ func is_boss_wave(wave: int) -> bool:
 
 
 func on_boss_spawned() -> void:
-	boss_alive = true
+	bosses_alive += 1
 	boss_spawned.emit()
 
 
 func on_boss_died() -> void:
-	boss_alive = false
+	bosses_alive -= 1
 	boss_died.emit()
 	check_wave_complete()
 
