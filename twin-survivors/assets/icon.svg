@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="128" height="128" fill="#0a0a14"/>
+  <!-- Player 1 (cyan) -->
+  <circle cx="44" cy="64" r="18" fill="#00ffff" filter="url(#glow)" opacity="0.9"/>
+  <circle cx="44" cy="64" r="10" fill="#ffffff"/>
+  <!-- Player 2 (orange) -->
+  <circle cx="84" cy="64" r="18" fill="#ff8800" filter="url(#glow)" opacity="0.9"/>
+  <circle cx="84" cy="64" r="10" fill="#ffffff"/>
+  <!-- Zombie silhouettes -->
+  <circle cx="20" cy="30" r="8" fill="#44ff44" opacity="0.5"/>
+  <circle cx="108" cy="98" r="8" fill="#44ff44" opacity="0.5"/>
+  <circle cx="64" cy="110" r="6" fill="#44ff44" opacity="0.4"/>
+  <circle cx="100" cy="25" r="7" fill="#44ff44" opacity="0.45"/>
+</svg>

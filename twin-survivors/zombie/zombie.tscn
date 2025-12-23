@@ -1,0 +1,72 @@
+[gd_scene load_steps=7 format=3 uid="uid://c0ombie001"]
+
+[ext_resource type="Script" path="res://zombie/zombie.gd" id="1_zombie"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 14.0
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="Gradient" id="Gradient_death"]
+colors = PackedColorArray(0.6, 0.1, 0.1, 1, 0.3, 0.5, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_death"]
+gradient = SubResource("Gradient_death")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_death"]
+emission_shape = 1
+emission_sphere_radius = 10.0
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 50.0
+initial_velocity_max = 100.0
+gravity = Vector3(0, 200, 0)
+scale_min = 3.0
+scale_max = 8.0
+color_ramp = SubResource("GradientTexture1D_death")
+
+[node name="Zombie" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_zombie")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="GlowSprite" type="Sprite2D" parent="."]
+modulate = Color(0.4, 0.9, 0.3, 0.4)
+scale = Vector2(0.45, 0.45)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="BodySprite" type="Sprite2D" parent="."]
+modulate = Color(0.4, 0.9, 0.3, 1)
+scale = Vector2(0.22, 0.22)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="Eyes" type="Node2D" parent="."]
+
+[node name="LeftEye" type="Sprite2D" parent="Eyes"]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(-4, -3)
+scale = Vector2(0.04, 0.04)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="RightEye" type="Sprite2D" parent="Eyes"]
+modulate = Color(1, 0, 0, 1)
+position = Vector2(4, -3)
+scale = Vector2(0.04, 0.04)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="DeathParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 16
+process_material = SubResource("ParticleProcessMaterial_death")
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0

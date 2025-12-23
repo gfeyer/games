@@ -1,0 +1,75 @@
+[gd_scene load_steps=7 format=3 uid="uid://ccredit001"]
+
+[ext_resource type="Script" path="res://pickup/credit.gd" id="1_credit"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pickup"]
+radius = 12.0
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_sparkle"]
+emission_shape = 1
+emission_sphere_radius = 8.0
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 10.0
+initial_velocity_max = 30.0
+gravity = Vector3(0, -20, 0)
+scale_min = 1.0
+scale_max = 3.0
+color = Color(1, 0.9, 0.3, 1)
+
+[sub_resource type="Gradient" id="Gradient_collect"]
+colors = PackedColorArray(1, 0.9, 0.3, 1, 1, 1, 0.5, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_collect"]
+gradient = SubResource("Gradient_collect")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_collect"]
+emission_shape = 1
+emission_sphere_radius = 5.0
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 40.0
+initial_velocity_max = 80.0
+gravity = Vector3(0, -50, 0)
+scale_min = 2.0
+scale_max = 5.0
+color_ramp = SubResource("GradientTexture1D_collect")
+
+[node name="Credit" type="Area2D"]
+collision_layer = 8
+collision_mask = 1
+script = ExtResource("1_credit")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_pickup")
+
+[node name="Glow" type="Sprite2D" parent="."]
+modulate = Color(1, 0.9, 0.3, 0.5)
+scale = Vector2(0.25, 0.25)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+modulate = Color(1, 0.9, 0.3, 1)
+scale = Vector2(0.12, 0.12)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="SparkleParticles" type="GPUParticles2D" parent="."]
+amount = 6
+process_material = SubResource("ParticleProcessMaterial_sparkle")
+lifetime = 0.6
+
+[node name="CollectParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 12
+process_material = SubResource("ParticleProcessMaterial_collect")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0

@@ -1,0 +1,105 @@
+extends Area2D
+class_name Bullet
+
+signal hit(position: Vector2)
+
+@export var speed: float = 500.0
+@export var lifetime: float = 3.0
+
+var direction: Vector2 = Vector2.RIGHT
+var damage: int = 1
+var aoe_radius: float = 0.0
+
+# Visual references
+@onready var trail_particles: GPUParticles2D = $TrailParticles
+@onready var impact_particles: GPUParticles2D = $ImpactParticles
+@onready var aoe_particles: GPUParticles2D = $AOEParticles
+
+var time_alive: float = 0.0
+
+
+func _ready() -> void:
+	damage = GameManager.get_damage()
+	aoe_radius = GameManager.get_aoe_radius()
+	add_to_group("projectiles")
+
+	# Connect body entered signal
+	body_entered.connect(_on_body_entered)
+
+
+func _physics_process(delta: float) -> void:
+	position += direction * speed * delta
+
+	time_alive += delta
+	if time_alive >= lifetime:
+		queue_free()
+
+	# Check screen bounds
+	var viewport_rect = get_viewport_rect()
+	if not viewport_rect.grow(50).has_point(global_position):
+		queue_free()
+
+
+func setup(spawn_pos: Vector2, dir: Vector2) -> void:
+	global_position = spawn_pos
+	direction = dir.normalized()
+	rotation = direction.angle()
+
+
+func _on_body_entered(body: Node2D) -> void:
+	if body is Zombie:
+		deal_damage(body)
+		spawn_impact_effect()
+
+		if aoe_radius > 0:
+			deal_aoe_damage()
+
+		destroy()
+
+
+func deal_damage(zombie: Zombie) -> void:
+	zombie.take_damage(damage)
+
+
+func deal_aoe_damage() -> void:
+	if aoe_radius <= 0:
+		return
+
+	# Find all zombies in radius
+	var zombies = get_tree().get_nodes_in_group("zombies")
+	for zombie in zombies:
+		if not is_instance_valid(zombie):
+			continue
+		if zombie == null:
+			continue
+		var dist = global_position.distance_to(zombie.global_position)
+		if dist <= aoe_radius:
+			# Damage falls off with distance
+			var falloff = 1.0 - (dist / aoe_radius) * 0.5
+			var aoe_damage = max(1, int(damage * falloff))
+			zombie.take_damage(aoe_damage)
+
+	# Show AOE effect
+	if aoe_particles:
+		aoe_particles.emitting = true
+
+
+func spawn_impact_effect() -> void:
+	if impact_particles:
+		impact_particles.emitting = true
+	hit.emit(global_position)
+
+
+func destroy() -> void:
+	# Stop moving
+	set_physics_process(false)
+
+	# Hide bullet sprite
+	$BulletSprite.visible = false
+
+	if trail_particles:
+		trail_particles.emitting = false
+
+	# Wait for particles to finish
+	await get_tree().create_timer(0.3).timeout
+	queue_free()

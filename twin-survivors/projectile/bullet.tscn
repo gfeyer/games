@@ -1,0 +1,101 @@
+[gd_scene load_steps=8 format=3 uid="uid://cbullet001"]
+
+[ext_resource type="Script" path="res://projectile/bullet.gd" id="1_bullet"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bullet"]
+radius = 5.0
+
+[sub_resource type="Gradient" id="Gradient_glow"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_glow"]
+gradient = SubResource("Gradient_glow")
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_trail"]
+emission_shape = 1
+emission_sphere_radius = 2.0
+direction = Vector3(-1, 0, 0)
+spread = 10.0
+initial_velocity_min = 20.0
+initial_velocity_max = 40.0
+gravity = Vector3(0, 0, 0)
+scale_min = 2.0
+scale_max = 4.0
+color = Color(1, 1, 0.6, 0.8)
+
+[sub_resource type="Gradient" id="Gradient_impact"]
+colors = PackedColorArray(1, 1, 0.5, 1, 1, 0.5, 0.2, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_impact"]
+gradient = SubResource("Gradient_impact")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_impact"]
+emission_shape = 1
+emission_sphere_radius = 5.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+initial_velocity_min = 50.0
+initial_velocity_max = 100.0
+gravity = Vector3(0, 100, 0)
+scale_min = 2.0
+scale_max = 5.0
+color_ramp = SubResource("GradientTexture1D_impact")
+
+[sub_resource type="Gradient" id="Gradient_aoe"]
+colors = PackedColorArray(1, 0.5, 0, 0.8, 1, 0.3, 0, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_aoe"]
+gradient = SubResource("Gradient_aoe")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_aoe"]
+emission_shape = 1
+emission_sphere_radius = 30.0
+direction = Vector3(0, 0, 0)
+spread = 180.0
+initial_velocity_min = 80.0
+initial_velocity_max = 150.0
+gravity = Vector3(0, 50, 0)
+scale_min = 3.0
+scale_max = 8.0
+color_ramp = SubResource("GradientTexture1D_aoe")
+
+[node name="Bullet" type="Area2D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_bullet")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bullet")
+
+[node name="BulletSprite" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 0.6, 1)
+scale = Vector2(0.08, 0.08)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="GlowSprite" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 0.4, 0.6)
+scale = Vector2(0.15, 0.15)
+texture = SubResource("GradientTexture2D_glow")
+
+[node name="TrailParticles" type="GPUParticles2D" parent="."]
+amount = 16
+process_material = SubResource("ParticleProcessMaterial_trail")
+lifetime = 0.2
+
+[node name="ImpactParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 12
+process_material = SubResource("ParticleProcessMaterial_impact")
+lifetime = 0.25
+one_shot = true
+explosiveness = 1.0
+
+[node name="AOEParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 24
+process_material = SubResource("ParticleProcessMaterial_aoe")
+lifetime = 0.3
+one_shot = true
+explosiveness = 1.0
