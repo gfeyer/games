@@ -4,6 +4,7 @@ extends Node2D
 var BulletScene: PackedScene = preload("res://projectile/bullet.tscn")
 var ZombieScene: PackedScene = preload("res://zombie/zombie.tscn")
 var CreditScene: PackedScene = preload("res://pickup/credit.tscn")
+var BossScene: PackedScene = preload("res://boss/boss.tscn")
 
 # Node references
 @onready var players_container: Node2D = $Players
@@ -95,6 +96,36 @@ func get_spawn_position() -> Vector2:
 	return Vector2.ZERO
 
 
+func spawn_boss(wave_number: int) -> void:
+	var boss = BossScene.instantiate()
+	boss.setup(wave_number)
+	boss.global_position = get_spawn_position()
+	boss.died.connect(_on_boss_died)
+	boss.minion_spawn_requested.connect(_on_minion_spawn_requested)
+	zombies_container.add_child(boss)
+	GameManager.on_boss_spawned()
+
+
+func _on_boss_died(pos: Vector2) -> void:
+	# Spawn extra credits (5 credits worth 50 total)
+	for i in range(5):
+		var offset = Vector2(randf_range(-40, 40), randf_range(-40, 40))
+		call_deferred("_spawn_credit", pos + offset)
+
+	# Big screen shake
+	add_screen_shake(15.0)
+
+
+func _on_minion_spawn_requested(pos: Vector2) -> void:
+	# Spawn a weaker zombie minion at the requested position
+	var minion = ZombieScene.instantiate()
+	minion.global_position = pos
+	minion.died.connect(_on_zombie_died)
+	# Make minions weaker (they're just regular zombies but spawned mid-wave)
+	zombies_container.add_child(minion)
+	GameManager.zombie_spawned()
+
+
 func _on_player_shot(spawn_pos: Vector2, direction: Vector2, player_id: int) -> void:
 	var bullet = BulletScene.instantiate()
 	bullet.setup(spawn_pos, direction, player_id)
@@ -126,16 +157,14 @@ func _on_wave_started(wave_number: int) -> void:
 	# Respawn all players at wave start
 	respawn_all_players()
 
+	# Spawn boss on boss waves (every 3 waves starting at wave 3)
+	if GameManager.is_boss_wave(wave_number):
+		call_deferred("spawn_boss", wave_number)
 
-func _on_wave_ended(wave_number: int) -> void:
-	# Auto-collect all remaining credits
-	collect_all_credits()
 
-
-func collect_all_credits() -> void:
-	for pickup in pickups_container.get_children():
-		if pickup is CreditPickup and not pickup.collected:
-			pickup.collect()
+func _on_wave_ended(_wave_number: int) -> void:
+	# Credits no longer auto-collected - players have 10 seconds to collect
+	pass
 
 
 func _on_game_over() -> void:

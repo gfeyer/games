@@ -9,15 +9,26 @@ signal game_started()
 signal zombie_killed(position: Vector2)
 signal player_died(player_id: int)
 signal shop_opened()
+signal collection_phase_started(time_remaining: float)
+signal collection_phase_tick(time_remaining: float)
+signal boss_spawned()
+signal boss_died()
 
 # Game State
-enum GameState { MENU, PLAYING, WAVE_COMPLETE, SHOP, GAME_OVER }
+enum GameState { MENU, PLAYING, WAVE_COMPLETE, COLLECTION_PHASE, SHOP, GAME_OVER }
 var current_state: GameState = GameState.MENU
 
 # Wave System
 var current_wave: int = 0
 var zombies_alive: int = 0
 var zombies_to_spawn: int = 0
+
+# Boss tracking
+var boss_alive: bool = false
+
+# Collection Phase
+var collection_time_remaining: float = 0.0
+const COLLECTION_PHASE_DURATION: float = 10.0
 
 # Economy
 var credits: int = 0
@@ -59,11 +70,23 @@ func _ready() -> void:
 	pass
 
 
+func _process(delta: float) -> void:
+	# Handle collection phase countdown
+	if current_state == GameState.COLLECTION_PHASE:
+		collection_time_remaining -= delta
+		collection_phase_tick.emit(collection_time_remaining)
+		if collection_time_remaining <= 0:
+			open_shop()
+
+
 func start_game() -> void:
 	current_wave = 0
 	credits = 0
 	player_credits = [0, 0]
 	zombies_alive = 0
+	zombies_to_spawn = 0
+	boss_alive = false
+	collection_time_remaining = 0.0
 	players_alive = 2
 
 	# Reset per-player upgrades
@@ -100,19 +123,20 @@ func zombie_spawned() -> void:
 func zombie_died(position: Vector2) -> void:
 	zombies_alive -= 1
 	zombie_killed.emit(position)
+	check_wave_complete()
 
-	# Check wave complete
-	if zombies_alive <= 0 and zombies_to_spawn <= 0:
+
+func check_wave_complete() -> void:
+	# Wave is complete when all zombies are dead and boss is dead (if applicable)
+	if zombies_alive <= 0 and zombies_to_spawn <= 0 and not boss_alive:
 		wave_complete()
 
 
 func wave_complete() -> void:
-	current_state = GameState.WAVE_COMPLETE
+	current_state = GameState.COLLECTION_PHASE
+	collection_time_remaining = COLLECTION_PHASE_DURATION
 	wave_ended.emit(current_wave)
-
-	# Small delay then open shop
-	await get_tree().create_timer(1.5).timeout
-	open_shop()
+	collection_phase_started.emit(collection_time_remaining)
 
 
 func open_shop() -> void:
@@ -221,6 +245,22 @@ func on_player_died(id: int) -> void:
 func trigger_game_over() -> void:
 	current_state = GameState.GAME_OVER
 	game_over.emit()
+
+
+# Boss functions
+func is_boss_wave(wave: int) -> bool:
+	return wave >= 3 and wave % 3 == 0
+
+
+func on_boss_spawned() -> void:
+	boss_alive = true
+	boss_spawned.emit()
+
+
+func on_boss_died() -> void:
+	boss_alive = false
+	boss_died.emit()
+	check_wave_complete()
 
 
 func restart_game() -> void:

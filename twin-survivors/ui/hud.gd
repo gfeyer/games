@@ -9,6 +9,7 @@ extends CanvasLayer
 @onready var wave_announcement: Label = $WaveAnnouncement
 @onready var upgrade_shop: Control = $UpgradeShop
 @onready var game_over_panel: Control = $GameOverPanel
+@onready var collection_countdown: Label = $CollectionCountdown
 
 var credits_display: int = 0
 var credits_target: int = 0
@@ -23,6 +24,8 @@ func _ready() -> void:
 	GameManager.credits_changed.connect(_on_credits_changed)
 	GameManager.game_over.connect(_on_game_over)
 	GameManager.shop_opened.connect(_on_shop_opened)
+	GameManager.collection_phase_started.connect(_on_collection_phase_started)
+	GameManager.collection_phase_tick.connect(_on_collection_phase_tick)
 
 	# Find players and connect health signals
 	await get_tree().process_frame
@@ -40,6 +43,7 @@ func _ready() -> void:
 	wave_announcement.visible = false
 	upgrade_shop.visible = false
 	game_over_panel.visible = false
+	collection_countdown.visible = false
 	update_credits_display()
 
 
@@ -70,8 +74,25 @@ func _on_wave_ended(_wave_number: int) -> void:
 
 
 func _on_shop_opened() -> void:
+	collection_countdown.visible = false
 	upgrade_shop.visible = true
 	upgrade_shop.refresh_shop()
+
+
+func _on_collection_phase_started(_time_remaining: float) -> void:
+	collection_countdown.visible = true
+	collection_countdown.modulate = Color.WHITE
+
+
+func _on_collection_phase_tick(time_remaining: float) -> void:
+	if time_remaining > 0:
+		collection_countdown.text = "COLLECT COINS! %.0f" % ceil(time_remaining)
+		# Flash red in last 3 seconds
+		if time_remaining <= 3.0:
+			var flash = sin(Time.get_ticks_msec() * 0.01) * 0.5 + 0.5
+			collection_countdown.modulate = Color(1.0, flash, flash)
+	else:
+		collection_countdown.visible = false
 
 
 func _on_credits_changed(amount: int) -> void:

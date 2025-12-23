@@ -124,7 +124,7 @@ func handle_movement(delta: float) -> void:
 
 
 func handle_targeting() -> void:
-	current_target = find_nearest_zombie()
+	current_target = find_nearest_enemy()
 
 	# Update aim indicator
 	if aim_indicator:
@@ -137,18 +137,21 @@ func handle_targeting() -> void:
 			aim_indicator.visible = false
 
 
-func find_nearest_zombie() -> Node2D:
-	var zombies = get_tree().get_nodes_in_group("zombies")
+func find_nearest_enemy() -> Node2D:
+	var enemies: Array[Node] = []
+	enemies.append_array(get_tree().get_nodes_in_group("zombies"))
+	enemies.append_array(get_tree().get_nodes_in_group("bosses"))
+
 	var nearest: Node2D = null
 	var nearest_dist: float = INF
 
-	for zombie in zombies:
-		if not is_instance_valid(zombie):
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
 			continue
-		var dist = global_position.distance_to(zombie.global_position)
+		var dist = global_position.distance_to(enemy.global_position)
 		if dist < nearest_dist:
 			nearest_dist = dist
-			nearest = zombie
+			nearest = enemy
 
 	return nearest
 
@@ -184,10 +187,12 @@ func handle_bomb(delta: float) -> void:
 
 func count_enemies_in_radius(radius: float) -> int:
 	var count = 0
-	var zombies = get_tree().get_nodes_in_group("zombies")
-	for zombie in zombies:
-		if is_instance_valid(zombie):
-			if global_position.distance_to(zombie.global_position) <= radius:
+	var enemies: Array[Node] = []
+	enemies.append_array(get_tree().get_nodes_in_group("zombies"))
+	enemies.append_array(get_tree().get_nodes_in_group("bosses"))
+	for enemy in enemies:
+		if is_instance_valid(enemy):
+			if global_position.distance_to(enemy.global_position) <= radius:
 				count += 1
 	return count
 
@@ -200,13 +205,15 @@ func trigger_bomb() -> void:
 		tween.tween_property(bomb_radius_indicator, "modulate:a", 0.0, 0.4).from(0.6)
 		tween.tween_callback(func(): bomb_radius_indicator.visible = false)
 
-	# Damage all zombies in radius
-	var zombies = get_tree().get_nodes_in_group("zombies")
-	for zombie in zombies:
-		if is_instance_valid(zombie):
-			var dist = global_position.distance_to(zombie.global_position)
+	# Damage all enemies in radius (zombies and bosses)
+	var enemies: Array[Node] = []
+	enemies.append_array(get_tree().get_nodes_in_group("zombies"))
+	enemies.append_array(get_tree().get_nodes_in_group("bosses"))
+	for enemy in enemies:
+		if is_instance_valid(enemy):
+			var dist = global_position.distance_to(enemy.global_position)
 			if dist <= BOMB_RADIUS:
-				zombie.take_damage(BOMB_DAMAGE)
+				enemy.take_damage(BOMB_DAMAGE)
 
 	# Visual explosion effect
 	if bomb_particles:

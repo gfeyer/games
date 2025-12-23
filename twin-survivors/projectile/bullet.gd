@@ -49,8 +49,8 @@ func setup(spawn_pos: Vector2, dir: Vector2, player_id: int) -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if body is Zombie:
-		deal_damage(body)
+	if body is Zombie or body is Boss:
+		deal_damage_to_enemy(body)
 		spawn_impact_effect()
 
 		if aoe_radius > 0:
@@ -59,27 +59,28 @@ func _on_body_entered(body: Node2D) -> void:
 		destroy()
 
 
-func deal_damage(zombie: Zombie) -> void:
-	zombie.take_damage(damage)
+func deal_damage_to_enemy(enemy: Node2D) -> void:
+	enemy.take_damage(damage)
 
 
 func deal_aoe_damage() -> void:
 	if aoe_radius <= 0:
 		return
 
-	# Find all zombies in radius
-	var zombies = get_tree().get_nodes_in_group("zombies")
-	for zombie in zombies:
-		if not is_instance_valid(zombie):
+	# Find all zombies and bosses in radius
+	var enemies: Array[Node] = []
+	enemies.append_array(get_tree().get_nodes_in_group("zombies"))
+	enemies.append_array(get_tree().get_nodes_in_group("bosses"))
+
+	for enemy in enemies:
+		if not is_instance_valid(enemy):
 			continue
-		if zombie == null:
-			continue
-		var dist = global_position.distance_to(zombie.global_position)
+		var dist = global_position.distance_to(enemy.global_position)
 		if dist <= aoe_radius:
 			# Damage falls off with distance
 			var falloff = 1.0 - (dist / aoe_radius) * 0.5
 			var aoe_damage = max(1, int(damage * falloff))
-			zombie.take_damage(aoe_damage)
+			enemy.take_damage(aoe_damage)
 
 	# Show AOE effect
 	if aoe_particles:
