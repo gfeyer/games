@@ -33,10 +33,17 @@ color_ramp = SubResource("GradientTexture1D_death")
 
 [node name="Zombie" type="CharacterBody2D"]
 collision_layer = 2
-collision_mask = 1
+collision_mask = 0
 script = ExtResource("1_zombie")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="DamageArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="DamageShape" type="CollisionShape2D" parent="DamageArea"]
 shape = SubResource("CircleShape2D_body")
 
 [node name="GlowSprite" type="Sprite2D" parent="."]

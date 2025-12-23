@@ -23,6 +23,7 @@ var wobble_speed: float = 8.0
 @onready var glow_sprite: Sprite2D = $GlowSprite
 @onready var eyes: Node2D = $Eyes
 @onready var death_particles: GPUParticles2D = $DeathParticles
+@onready var damage_area: Area2D = $DamageArea
 
 # Damage cooldown (to prevent rapid hits)
 var damage_cooldown: float = 0.0
@@ -33,6 +34,10 @@ func _ready() -> void:
 	current_health = health
 	add_to_group("zombies")
 	wobble_offset = randf() * TAU  # Random start phase
+
+	# Connect damage area signal
+	if damage_area:
+		damage_area.body_entered.connect(_on_damage_area_body_entered)
 
 
 func _physics_process(delta: float) -> void:
@@ -78,12 +83,10 @@ func move_toward_target(delta: float) -> void:
 
 	move_and_slide()
 
-	# Check for collision with players
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
-		if collider is Player and damage_cooldown <= 0:
-			deal_damage_to_player(collider)
+
+func _on_damage_area_body_entered(body: Node2D) -> void:
+	if body is Player and damage_cooldown <= 0 and is_alive:
+		deal_damage_to_player(body)
 
 
 func deal_damage_to_player(player: Player) -> void:

@@ -11,8 +11,8 @@ var current_state: State = State.CHASING
 # Stats (scaled by wave in setup())
 @export var base_health: int = 50
 @export var health_per_wave: int = 10
-@export var speed: float = 100.0
-@export var charge_speed: float = 400.0
+@export var speed: float = 180.0  # Faster base movement
+@export var charge_speed: float = 500.0  # Faster charge
 @export var damage: int = 25
 @export var credit_value: int = 50
 
@@ -22,19 +22,19 @@ var target: Node2D = null
 var wave_number: int = 1
 
 # Charge attack
-var charge_timer: float = 5.0
+var charge_timer: float = 3.0
 var charge_duration: float = 0.0
 var charge_direction: Vector2 = Vector2.ZERO
-const CHARGE_INTERVAL: float = 5.0
-const CHARGE_WINDUP_TIME: float = 0.5
-const CHARGE_DURATION: float = 1.0
-const CHARGE_COOLDOWN: float = 1.0
+const CHARGE_INTERVAL: float = 3.0  # More frequent charges
+const CHARGE_WINDUP_TIME: float = 0.3  # Shorter warning
+const CHARGE_DURATION: float = 1.2  # Longer charge
+const CHARGE_COOLDOWN: float = 0.5  # Shorter recovery
 var cooldown_timer: float = 0.0
 
 # Minion spawning
-var spawn_timer: float = 8.0
-const SPAWN_INTERVAL: float = 8.0
-const MINIONS_PER_SPAWN: int = 3
+var spawn_timer: float = 6.0
+const SPAWN_INTERVAL: float = 6.0  # More frequent spawns
+const MINIONS_PER_SPAWN: int = 4  # More minions
 
 # Wobble animation
 var wobble_offset: float = 0.0
@@ -47,6 +47,7 @@ var wobble_speed: float = 6.0
 @onready var death_particles: GPUParticles2D = $DeathParticles
 @onready var charge_indicator: Sprite2D = $ChargeIndicator
 @onready var charge_particles: GPUParticles2D = $ChargeParticles
+@onready var damage_area: Area2D = $DamageArea
 
 # Damage cooldown
 var damage_cooldown: float = 0.0
@@ -56,6 +57,10 @@ const DAMAGE_COOLDOWN_TIME: float = 0.5
 func _ready() -> void:
 	add_to_group("bosses")
 	wobble_offset = randf() * TAU
+
+	# Connect damage area signal
+	if damage_area:
+		damage_area.body_entered.connect(_on_damage_area_body_entered)
 
 
 func setup(wave: int) -> void:
@@ -125,7 +130,6 @@ func handle_chasing(delta: float) -> void:
 		velocity = Vector2.ZERO
 
 	move_and_slide()
-	check_player_collision()
 
 
 func start_charge_windup() -> void:
@@ -173,10 +177,13 @@ func start_charging() -> void:
 func handle_charging(delta: float) -> void:
 	charge_duration -= delta
 
-	# Move fast in charge direction
+	# Track player's CURRENT position during charge (homing charge)
+	if target and is_instance_valid(target):
+		charge_direction = (target.global_position - global_position).normalized()
+
+	# Move fast toward target
 	velocity = charge_direction * charge_speed
 	move_and_slide()
-	check_player_collision()
 
 	# Check if hit screen edge
 	var viewport = get_viewport_rect()
@@ -212,12 +219,9 @@ func handle_cooldown(delta: float) -> void:
 		current_state = State.CHASING
 
 
-func check_player_collision() -> void:
-	for i in get_slide_collision_count():
-		var collision = get_slide_collision(i)
-		var collider = collision.get_collider()
-		if collider is Player and damage_cooldown <= 0:
-			deal_damage_to_player(collider)
+func _on_damage_area_body_entered(body: Node2D) -> void:
+	if body is Player and damage_cooldown <= 0 and is_alive:
+		deal_damage_to_player(body)
 
 
 func deal_damage_to_player(player: Player) -> void:
