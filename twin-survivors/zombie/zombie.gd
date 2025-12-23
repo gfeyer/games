@@ -4,7 +4,7 @@ class_name Zombie
 signal died(position: Vector2)
 
 # Stats
-@export var base_speed: float = 80.0
+@export var base_speed: float = 150.0  # Fast - players must run!
 @export var damage: int = 10
 @export var health: int = 1
 @export var credit_value: int = 10

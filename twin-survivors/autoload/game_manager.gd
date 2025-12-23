@@ -51,10 +51,10 @@ const BASE_DAMAGE: int = 1
 const BASE_MOVE_SPEED: float = 200.0
 const BASE_PLAYER_HEALTH: int = 100
 
-# Wave scaling - LARGER WAVES
-const BASE_ZOMBIES_PER_WAVE: int = 10
-const ZOMBIES_PER_WAVE_INCREASE: int = 5
-const ZOMBIE_SPEED_INCREASE: float = 0.05  # 5% faster per wave
+# Wave scaling - MASSIVE WAVES
+const BASE_ZOMBIES_PER_WAVE: int = 50
+const ZOMBIES_PER_WAVE_INCREASE: int = 25
+const ZOMBIE_SPEED_INCREASE: float = 0.08  # 8% faster per wave
 
 
 func _ready() -> void:

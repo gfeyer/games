@@ -7,6 +7,10 @@ var collected: bool = false
 var spawn_velocity: Vector2 = Vector2.ZERO
 var friction: float = 5.0
 
+# Magnet effect
+const MAGNET_RANGE: float = 100.0  # Distance to start attracting
+const MAGNET_SPEED: float = 300.0  # Speed when moving toward player
+
 # Visual references
 @onready var sprite: Sprite2D = $Sprite
 @onready var glow: Sprite2D = $Glow
@@ -34,6 +38,17 @@ func _physics_process(delta: float) -> void:
 		position += spawn_velocity * delta
 		spawn_velocity = spawn_velocity.lerp(Vector2.ZERO, friction * delta)
 
+	# Magnet effect - move toward nearest player if close
+	var nearest_player = find_nearest_player()
+	if nearest_player:
+		var dist = global_position.distance_to(nearest_player.global_position)
+		if dist < MAGNET_RANGE:
+			var direction = (nearest_player.global_position - global_position).normalized()
+			# Move faster as we get closer
+			var speed_mult = 1.0 + (1.0 - dist / MAGNET_RANGE)
+			position += direction * MAGNET_SPEED * speed_mult * delta
+			spawn_velocity = Vector2.ZERO  # Cancel spawn velocity when magnetized
+
 	# Pulsing effect
 	pulse_offset += delta * 4
 	var pulse_scale = 1.0 + sin(pulse_offset) * 0.1
@@ -41,6 +56,24 @@ func _physics_process(delta: float) -> void:
 		sprite.scale = Vector2(0.12, 0.12) * pulse_scale
 	if glow:
 		glow.modulate.a = 0.4 + sin(pulse_offset) * 0.2
+
+
+func find_nearest_player() -> Node2D:
+	var players = get_tree().get_nodes_in_group("players")
+	var nearest: Node2D = null
+	var nearest_dist: float = INF
+
+	for player in players:
+		if not is_instance_valid(player):
+			continue
+		if not player.is_alive:
+			continue
+		var dist = global_position.distance_to(player.global_position)
+		if dist < nearest_dist:
+			nearest_dist = dist
+			nearest = player
+
+	return nearest
 
 
 func _on_body_entered(body: Node2D) -> void:

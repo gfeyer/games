@@ -38,6 +38,12 @@ func _ready() -> void:
 		$HBoxContainer/P2Panel/VBox/UpgradeList/SpeedButton
 	]
 
+	# Connect P1 button clicks
+	for i in range(5):
+		var upgrade_name = UPGRADE_NAMES[i]
+		p1_buttons[i].pressed.connect(func(): purchase_for_player(1, upgrade_name))
+		p2_buttons[i].pressed.connect(func(): purchase_for_player(2, upgrade_name))
+
 	continue_button.pressed.connect(_on_continue_pressed)
 
 

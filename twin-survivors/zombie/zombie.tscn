@@ -14,7 +14,7 @@ fill = 1
 fill_from = Vector2(0.5, 0.5)
 
 [sub_resource type="Gradient" id="Gradient_death"]
-colors = PackedColorArray(0.6, 0.1, 0.1, 1, 0.3, 0.5, 0.2, 0)
+colors = PackedColorArray(0.9, 0.2, 0.1, 1, 0.5, 0.1, 0.1, 0)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_death"]
 gradient = SubResource("Gradient_death")
@@ -40,12 +40,12 @@ script = ExtResource("1_zombie")
 shape = SubResource("CircleShape2D_body")
 
 [node name="GlowSprite" type="Sprite2D" parent="."]
-modulate = Color(0.4, 0.9, 0.3, 0.4)
+modulate = Color(0.9, 0.2, 0.2, 0.4)
 scale = Vector2(0.45, 0.45)
 texture = SubResource("GradientTexture2D_glow")
 
 [node name="BodySprite" type="Sprite2D" parent="."]
-modulate = Color(0.4, 0.9, 0.3, 1)
+modulate = Color(0.9, 0.2, 0.2, 1)
 scale = Vector2(0.22, 0.22)
 texture = SubResource("GradientTexture2D_glow")
 
