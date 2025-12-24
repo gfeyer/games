@@ -44,6 +44,11 @@ const AUTO_BOMB_THRESHOLD: int = 5  # Auto-trigger when this many enemies are cl
 @onready var trail_particles: GPUParticles2D = $TrailParticles
 @onready var bomb_particles: GPUParticles2D = $BombParticles
 
+# Floating label (name + health bar above player)
+@onready var floating_label: Node2D = $FloatingLabel
+@onready var name_label: Label = $FloatingLabel/NameLabel
+@onready var floating_health_bar: ProgressBar = $FloatingLabel/HealthBar
+
 # Colors
 const PLAYER_COLORS: Dictionary = {
 	1: Color(0.0, 1.0, 1.0),   # Cyan
@@ -75,6 +80,11 @@ func setup_visuals() -> void:
 		glow_sprite.modulate.a = 0.5
 	if aim_indicator:
 		aim_indicator.modulate = color
+	# Floating label colors
+	if name_label:
+		name_label.add_theme_color_override("font_color", color)
+	update_name_label()
+	update_floating_health_bar()
 
 
 func _physics_process(delta: float) -> void:
@@ -248,6 +258,7 @@ func take_damage(amount: int) -> void:
 	current_health -= amount
 	current_health = max(0, current_health)
 	health_changed.emit(current_health, max_health)
+	update_floating_health_bar()
 
 	# Flash effect
 	if damage_flash:
@@ -263,6 +274,7 @@ func heal(amount: int) -> void:
 
 	current_health = min(current_health + amount, max_health)
 	health_changed.emit(current_health, max_health)
+	update_floating_health_bar()
 
 
 func die() -> void:
@@ -302,7 +314,19 @@ func reset() -> void:
 	bomb_cooldown = 0.0
 	regen_accumulator = 0.0
 	health_changed.emit(current_health, max_health)
+	update_floating_health_bar()
+	update_name_label()
 
 
 func get_bomb_cooldown() -> float:
 	return bomb_cooldown
+
+
+func update_name_label() -> void:
+	if name_label:
+		name_label.text = GameManager.get_player_name(player_id)
+
+
+func update_floating_health_bar() -> void:
+	if floating_health_bar:
+		floating_health_bar.value = (float(current_health) / float(max_health)) * 100.0

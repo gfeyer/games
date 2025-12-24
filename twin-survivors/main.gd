@@ -15,6 +15,7 @@ var BossScene: PackedScene = preload("res://boss/boss.tscn")
 @onready var upgrade_shop: Control = $HUD/UpgradeShop
 @onready var camera: Camera2D = $Camera2D
 @onready var ambient_particles: GPUParticles2D = $AmbientParticles
+@onready var name_input_menu: Control = $HUD/NameInputMenu
 
 # Spawning - FAST to get 30-40 on screen at once
 var spawn_timer: float = 0.0
@@ -41,9 +42,9 @@ func _ready() -> void:
 		if player is Player:
 			player.shot_fired.connect(_on_player_shot)
 
-	# Start game
-	await get_tree().create_timer(0.5).timeout
-	GameManager.start_game()
+	# Show name input menu instead of auto-starting
+	name_input_menu.names_submitted.connect(_on_names_submitted)
+	name_input_menu.show()
 
 
 func _process(delta: float) -> void:
@@ -176,6 +177,20 @@ func _on_game_over() -> void:
 	pass
 
 
+func _on_names_submitted(p1_name: String, p2_name: String) -> void:
+	GameManager.set_player_name(1, p1_name)
+	GameManager.set_player_name(2, p2_name)
+
+	# Update player labels
+	for player in players_container.get_children():
+		if player is Player:
+			player.update_name_label()
+
+	# Start game after short delay
+	await get_tree().create_timer(0.3).timeout
+	GameManager.start_game()
+
+
 func handle_screen_shake(delta: float) -> void:
 	if shake_amount > 0:
 		shake_amount = max(0, shake_amount - shake_decay * delta)
@@ -198,11 +213,11 @@ func respawn_all_players() -> void:
 	for player in players_container.get_children():
 		if player is Player:
 			player.reset()
-			# Reposition to starting positions
+			# Reposition to starting positions (1920x1080 viewport)
 			if player.player_id == 1:
-				player.position = Vector2(640, 720)
+				player.position = Vector2(480, 540)
 			else:
-				player.position = Vector2(1920, 720)
+				player.position = Vector2(1440, 540)
 			GameManager.players_alive += 1
 
 

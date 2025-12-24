@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://chud001"]
+[gd_scene load_steps=6 format=3 uid="uid://chud001"]
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" uid="uid://cshop001" path="res://ui/upgrade_shop.tscn" id="2_shop"]
+[ext_resource type="PackedScene" uid="uid://cnameinput001" path="res://ui/name_input.tscn" id="3_nameinput"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_health_bg"]
 bg_color = Color(0.2, 0.2, 0.2, 0.8)
@@ -194,3 +195,5 @@ layout_mode = 2
 text = "RESTART"
 
 [connection signal="pressed" from="GameOverPanel/VBoxContainer/RestartButton" to="." method="_on_restart_pressed"]
+
+[node name="NameInputMenu" parent="." instance=ExtResource("3_nameinput")]

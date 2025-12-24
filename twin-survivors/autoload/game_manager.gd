@@ -54,6 +54,17 @@ var upgrade_base_costs: Dictionary = {
 var players: Array[Node] = []
 var players_alive: int = 2
 
+# Player names
+var player_names: Array[String] = ["Seba", "Sofia"]
+
+
+func set_player_name(player_id: int, player_name: String) -> void:
+	player_names[player_id - 1] = player_name
+
+
+func get_player_name(player_id: int) -> String:
+	return player_names[player_id - 1]
+
 # Base stats
 const BASE_FIRE_RATE: float = 1.0  # seconds between shots
 const BASE_DAMAGE: int = 1

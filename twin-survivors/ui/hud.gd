@@ -4,6 +4,8 @@ extends CanvasLayer
 @onready var credits_label: Label = $CreditsContainer/HBoxContainer/CreditsLabel
 @onready var p1_health_bar: ProgressBar = $HealthBars/P1HealthBar
 @onready var p2_health_bar: ProgressBar = $HealthBars/P2HealthBar
+@onready var p1_label: Label = $HealthBars/P1Label
+@onready var p2_label: Label = $HealthBars/P2Label
 @onready var p1_bomb_label: Label = $HealthBars/P1BombLabel
 @onready var p2_bomb_label: Label = $HealthBars/P2BombLabel
 @onready var wave_announcement: Label = $WaveAnnouncement
@@ -26,6 +28,7 @@ func _ready() -> void:
 	GameManager.shop_opened.connect(_on_shop_opened)
 	GameManager.collection_phase_started.connect(_on_collection_phase_started)
 	GameManager.collection_phase_tick.connect(_on_collection_phase_tick)
+	GameManager.game_started.connect(_on_game_started)
 
 	# Find players and connect health signals
 	await get_tree().process_frame
@@ -60,6 +63,14 @@ func _process(delta: float) -> void:
 
 	# Update bomb cooldown labels
 	update_bomb_cooldowns()
+
+
+func _on_game_started() -> void:
+	# Update player name labels in HUD
+	if p1_label:
+		p1_label.text = GameManager.get_player_name(1)
+	if p2_label:
+		p2_label.text = GameManager.get_player_name(2)
 
 
 func _on_wave_started(wave_number: int) -> void:

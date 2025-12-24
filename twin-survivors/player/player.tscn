@@ -142,3 +142,25 @@ visible = false
 modulate = Color(1, 0.5, 0, 0.6)
 scale = Vector2(2.73, 2.73)
 texture = SubResource("GradientTexture2D_bomb_ring")
+
+[node name="FloatingLabel" type="Node2D" parent="."]
+position = Vector2(0, -45)
+
+[node name="NameLabel" type="Label" parent="FloatingLabel"]
+offset_left = -40.0
+offset_top = -20.0
+offset_right = 40.0
+offset_bottom = 0.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "Player"
+
+[node name="HealthBar" type="ProgressBar" parent="FloatingLabel"]
+offset_left = -30.0
+offset_top = 0.0
+offset_right = 30.0
+offset_bottom = 8.0
+value = 100.0
+show_percentage = false
