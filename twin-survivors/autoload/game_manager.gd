@@ -258,6 +258,27 @@ func trigger_game_over() -> void:
 	game_over.emit()
 
 
+func restart_wave() -> void:
+	# Reset only wave-specific state (keep upgrades, credits, wave number)
+	zombies_alive = 0
+	zombies_to_spawn = 0
+	bosses_alive = 0
+	collection_time_remaining = 0.0
+	players_alive = 2
+
+	current_state = GameState.PLAYING
+	game_started.emit()
+	start_wave_at(current_wave)
+
+
+func start_wave_at(wave: int) -> void:
+	# Start a specific wave without incrementing
+	zombies_to_spawn = get_zombies_for_wave(wave)
+	zombies_alive = 0
+	current_state = GameState.PLAYING
+	wave_started.emit(wave)
+
+
 # Boss functions
 func is_boss_wave(wave: int) -> bool:
 	return wave >= 3 and wave % 3 == 0

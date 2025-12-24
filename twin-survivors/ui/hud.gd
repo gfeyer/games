@@ -12,6 +12,7 @@ extends CanvasLayer
 @onready var upgrade_shop: Control = $UpgradeShop
 @onready var game_over_panel: Control = $GameOverPanel
 @onready var collection_countdown: Label = $CollectionCountdown
+@onready var wave_reached_label: Label = $GameOverPanel/VBoxContainer/WaveReachedLabel
 
 var credits_display: int = 0
 var credits_target: int = 0
@@ -130,6 +131,9 @@ func _on_p2_health_changed(current: int, max_health: int) -> void:
 func _on_game_over() -> void:
 	game_over_panel.visible = true
 	upgrade_shop.visible = false
+	# Show which wave they reached
+	if wave_reached_label:
+		wave_reached_label.text = "Reached Wave %d" % GameManager.current_wave
 
 
 func update_credits_display() -> void:
@@ -160,7 +164,12 @@ func show_wave_announcement(wave_number: int) -> void:
 	wave_announcement.visible = false
 
 
-func _on_restart_pressed() -> void:
+func _on_restart_level_pressed() -> void:
+	game_over_panel.visible = false
+	get_parent().restart_level()
+
+
+func _on_restart_game_pressed() -> void:
 	game_over_panel.visible = false
 	get_parent().restart_game()
 

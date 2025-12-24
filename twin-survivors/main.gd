@@ -221,6 +221,24 @@ func respawn_all_players() -> void:
 			GameManager.players_alive += 1
 
 
+func restart_level() -> void:
+	# Clear all entities (same as restart_game)
+	for child in zombies_container.get_children():
+		child.queue_free()
+	for child in projectiles_container.get_children():
+		child.queue_free()
+	for child in pickups_container.get_children():
+		child.queue_free()
+
+	# Reset players (respawn, full health)
+	for player in players_container.get_children():
+		if player is Player:
+			player.reset()
+
+	# Restart current wave (keeps upgrades and credits)
+	GameManager.restart_wave()
+
+
 func restart_game() -> void:
 	# Clear all entities
 	for child in zombies_container.get_children():

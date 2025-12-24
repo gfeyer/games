@@ -167,9 +167,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -150.0
-offset_top = -100.0
+offset_top = -120.0
 offset_right = 150.0
-offset_bottom = 100.0
+offset_bottom = 120.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -180,7 +180,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 15
 alignment = 1
 
 [node name="GameOverLabel" type="Label" parent="GameOverPanel/VBoxContainer"]
@@ -190,10 +190,25 @@ theme_override_font_sizes/font_size = 36
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="RestartButton" type="Button" parent="GameOverPanel/VBoxContainer"]
+[node name="WaveReachedLabel" type="Label" parent="GameOverPanel/VBoxContainer"]
 layout_mode = 2
-text = "RESTART"
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "Reached Wave 1"
+horizontal_alignment = 1
 
-[connection signal="pressed" from="GameOverPanel/VBoxContainer/RestartButton" to="." method="_on_restart_pressed"]
+[node name="RestartLevelButton" type="Button" parent="GameOverPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "RESTART LEVEL"
+
+[node name="RestartGameButton" type="Button" parent="GameOverPanel/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "RESTART GAME"
+
+[connection signal="pressed" from="GameOverPanel/VBoxContainer/RestartLevelButton" to="." method="_on_restart_level_pressed"]
+
+[connection signal="pressed" from="GameOverPanel/VBoxContainer/RestartGameButton" to="." method="_on_restart_game_pressed"]
 
 [node name="NameInputMenu" parent="." instance=ExtResource("3_nameinput")]
