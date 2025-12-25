@@ -28,6 +28,10 @@ func _ready() -> void:
 	# Random spawn velocity
 	spawn_velocity = Vector2(randf_range(-50, 50), randf_range(-80, -40))
 
+	# Disable sparkle particles in performance mode
+	if sparkle_particles and GameManager.performance_mode:
+		sparkle_particles.emitting = false
+
 
 func _physics_process(delta: float) -> void:
 	if collected:
@@ -49,13 +53,14 @@ func _physics_process(delta: float) -> void:
 			position += direction * MAGNET_SPEED * speed_mult * delta
 			spawn_velocity = Vector2.ZERO  # Cancel spawn velocity when magnetized
 
-	# Pulsing effect
-	pulse_offset += delta * 4
-	var pulse_scale = 1.0 + sin(pulse_offset) * 0.1
-	if sprite:
-		sprite.scale = Vector2(0.12, 0.12) * pulse_scale
-	if glow:
-		glow.modulate.a = 0.4 + sin(pulse_offset) * 0.2
+	# Pulsing effect (skip in performance mode)
+	if not GameManager.performance_mode:
+		pulse_offset += delta * 4
+		var pulse_scale = 1.0 + sin(pulse_offset) * 0.1
+		if sprite:
+			sprite.scale = Vector2(0.12, 0.12) * pulse_scale
+		if glow:
+			glow.modulate.a = 0.4 + sin(pulse_offset) * 0.2
 
 
 func find_nearest_player() -> Node2D:
@@ -88,8 +93,8 @@ func collect() -> void:
 	collected = true
 	GameManager.add_credits(value)
 
-	# Play collection effect
-	if collect_particles:
+	# Play collection effect (skip in performance mode)
+	if collect_particles and not GameManager.performance_mode:
 		collect_particles.emitting = true
 
 	# Hide sprite

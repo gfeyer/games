@@ -57,6 +57,15 @@ var players_alive: int = 2
 # Player names
 var player_names: Array[String] = ["Seba", "Sofia"]
 
+# Performance mode (disables visual effects for better FPS)
+var performance_mode: bool = false
+signal performance_mode_changed(enabled: bool)
+
+
+func toggle_performance_mode() -> void:
+	performance_mode = not performance_mode
+	performance_mode_changed.emit(performance_mode)
+
 
 func set_player_name(player_id: int, player_name: String) -> void:
 	player_names[player_id - 1] = player_name

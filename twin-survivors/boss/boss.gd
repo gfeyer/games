@@ -177,8 +177,8 @@ func start_charging() -> void:
 	current_state = State.CHARGING
 	charge_duration = CHARGE_DURATION
 
-	# Start charge particles
-	if charge_particles:
+	# Start charge particles (skip in performance mode)
+	if charge_particles and not GameManager.performance_mode:
 		charge_particles.emitting = true
 
 	# Hide indicator
@@ -269,8 +269,8 @@ func die() -> void:
 	died.emit(global_position)
 	GameManager.on_boss_died()
 
-	# Play death effect
-	if death_particles:
+	# Play death effect (skip in performance mode)
+	if death_particles and not GameManager.performance_mode:
 		death_particles.emitting = true
 
 	# Hide body
@@ -293,6 +293,15 @@ func die() -> void:
 
 
 func update_visuals(delta: float) -> void:
+	# Skip most visual updates in performance mode
+	if GameManager.performance_mode:
+		# Only keep scale effect for charging (gameplay feedback)
+		if current_state == State.CHARGING:
+			scale = Vector2(1.1, 1.1)
+		else:
+			scale = Vector2(1.0, 1.0)
+		return
+
 	# Wobble animation (slower, heavier feel)
 	wobble_offset += wobble_speed * delta
 	if body_sprite and current_state != State.CHARGING:

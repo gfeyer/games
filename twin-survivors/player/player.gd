@@ -115,9 +115,9 @@ func handle_movement(delta: float) -> void:
 	var speed = GameManager.get_move_speed(player_id)
 	velocity = input_dir * speed
 
-	# Enable trail when moving
+	# Enable trail when moving (skip in performance mode)
 	if trail_particles:
-		trail_particles.emitting = velocity.length() > 10
+		trail_particles.emitting = not GameManager.performance_mode and velocity.length() > 10
 
 	move_and_slide()
 
@@ -225,8 +225,8 @@ func trigger_bomb() -> void:
 			if dist <= BOMB_RADIUS:
 				enemy.take_damage(BOMB_DAMAGE)
 
-	# Visual explosion effect
-	if bomb_particles:
+	# Visual explosion effect (skip in performance mode)
+	if bomb_particles and not GameManager.performance_mode:
 		bomb_particles.restart()
 
 	# Screen shake via main scene
@@ -242,8 +242,8 @@ func shoot_at_target() -> void:
 	var direction = (current_target.global_position - global_position).normalized()
 	var spawn_pos = global_position + direction * 20
 
-	# Emit muzzle flash
-	if muzzle_flash:
+	# Emit muzzle flash (skip in performance mode)
+	if muzzle_flash and not GameManager.performance_mode:
 		muzzle_flash.position = direction * 20
 		muzzle_flash.rotation = direction.angle()
 		muzzle_flash.restart()
@@ -288,6 +288,10 @@ func die() -> void:
 
 
 func update_visuals() -> void:
+	# Skip visual effects in performance mode
+	if GameManager.performance_mode:
+		return
+
 	# Pulsing glow effect
 	if glow_sprite:
 		var pulse = 0.4 + sin(Time.get_ticks_msec() * 0.005) * 0.1

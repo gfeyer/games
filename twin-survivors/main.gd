@@ -52,6 +52,18 @@ func _process(delta: float) -> void:
 	handle_screen_shake(delta)
 
 
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("toggle_performance"):
+		GameManager.toggle_performance_mode()
+		update_performance_mode()
+
+
+func update_performance_mode() -> void:
+	# Toggle ambient particles based on performance mode
+	if ambient_particles:
+		ambient_particles.emitting = not GameManager.performance_mode
+
+
 func handle_spawning(delta: float) -> void:
 	if GameManager.current_state != GameManager.GameState.PLAYING:
 		return

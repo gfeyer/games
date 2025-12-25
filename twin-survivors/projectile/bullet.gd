@@ -25,6 +25,10 @@ func _ready() -> void:
 	# Connect body entered signal
 	body_entered.connect(_on_body_entered)
 
+	# Disable trail particles in performance mode
+	if trail_particles and GameManager.performance_mode:
+		trail_particles.emitting = false
+
 
 func _physics_process(delta: float) -> void:
 	position += direction * speed * delta
@@ -82,13 +86,14 @@ func deal_aoe_damage() -> void:
 			var aoe_damage = max(1, int(damage * falloff))
 			enemy.take_damage(aoe_damage)
 
-	# Show AOE effect
-	if aoe_particles:
+	# Show AOE effect (skip in performance mode)
+	if aoe_particles and not GameManager.performance_mode:
 		aoe_particles.emitting = true
 
 
 func spawn_impact_effect() -> void:
-	if impact_particles:
+	# Skip impact particles in performance mode
+	if impact_particles and not GameManager.performance_mode:
 		impact_particles.emitting = true
 	hit.emit(global_position)
 

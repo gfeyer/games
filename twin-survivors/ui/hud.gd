@@ -13,6 +13,7 @@ extends CanvasLayer
 @onready var game_over_panel: Control = $GameOverPanel
 @onready var collection_countdown: Label = $CollectionCountdown
 @onready var wave_reached_label: Label = $GameOverPanel/VBoxContainer/WaveReachedLabel
+@onready var perf_mode_label: Label = $PerfModeLabel
 
 var credits_display: int = 0
 var credits_target: int = 0
@@ -30,6 +31,7 @@ func _ready() -> void:
 	GameManager.collection_phase_started.connect(_on_collection_phase_started)
 	GameManager.collection_phase_tick.connect(_on_collection_phase_tick)
 	GameManager.game_started.connect(_on_game_started)
+	GameManager.performance_mode_changed.connect(_on_performance_mode_changed)
 
 	# Find players and connect health signals
 	await get_tree().process_frame
@@ -172,6 +174,11 @@ func _on_restart_level_pressed() -> void:
 func _on_restart_game_pressed() -> void:
 	game_over_panel.visible = false
 	get_parent().restart_game()
+
+
+func _on_performance_mode_changed(enabled: bool) -> void:
+	if perf_mode_label:
+		perf_mode_label.visible = enabled
 
 
 func update_bomb_cooldowns() -> void:

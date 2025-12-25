@@ -115,8 +115,8 @@ func die() -> void:
 	died.emit(global_position)
 	GameManager.zombie_died(global_position)
 
-	# Play death effect
-	if death_particles:
+	# Play death effect (skip in performance mode)
+	if death_particles and not GameManager.performance_mode:
 		death_particles.emitting = true
 
 	# Hide body immediately
@@ -137,6 +137,10 @@ func die() -> void:
 
 
 func update_visuals(delta: float) -> void:
+	# Skip all visual updates in performance mode
+	if GameManager.performance_mode:
+		return
+
 	# Wobble animation (shambling effect)
 	wobble_offset += wobble_speed * delta
 	if body_sprite:
