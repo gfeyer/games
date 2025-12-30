@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de Division - CM1/CM2</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: 3px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Reference Box */
+        .reference-box {
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+            margin-bottom: 20px;
+            max-width: 300px;
+        }
+
+        .reference-box .title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .reference-box .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+
+        .reference-box .step.active {
+            background: #fff3cd;
+            padding: 5px;
+            border-radius: 5px;
+            transform: scale(1.05);
+        }
+
+        .reference-box .step-num {
+            background: #333;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .reference-box .step.active .step-num {
+            background: #ff9800;
+        }
+
+        /* Division Board */
+        .division-board {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .potence-container {
+            font-family: 'Courier New', monospace;
+            font-size: 32px;
+        }
+
+        /* Simple table/matrix layout */
+        .potence-table {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+        }
+
+        .potence-main {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .potence-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .minus-col {
+            width: 30px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2196F3;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .potence-separator {
+            width: 3px;
+            background: #333;
+            align-self: stretch;
+        }
+
+        .potence-right {
+            display: flex;
+            flex-direction: column;
+            padding-left: 10px;
+        }
+
+        .quotient-row {
+            display: flex;
+            gap: 2px;
+            border-top: 3px solid #333;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .underline-row {
+            display: flex;
+            align-items: center;
+        }
+
+        .underline {
+            height: 3px;
+            background: #333;
+        }
+
+        .down-arrow-cell {
+            color: #2196F3;
+            font-size: 20px;
+            width: 38px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell {
+            width: 38px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            border: 2px solid #333;
+            background: white;
+        }
+
+        .cell.given {
+            color: #333;
+        }
+
+        .cell.empty-box {
+            border: 2px solid #999;
+            background: #fafafa;
+        }
+
+        .cell.no-border {
+            border: none;
+            background: transparent;
+        }
+
+        .cell.blue {
+            color: #2196F3;
+        }
+
+        .cell.orange {
+            color: #ff9800;
+        }
+
+        /* Drop Zones */
+        .drop-zone {
+            width: 38px;
+            height: 42px;
+            border: 2px solid #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            background: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .drop-zone:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #667eea;
+            background: #d0d0ff;
+            transform: scale(1.1);
+        }
+
+        .drop-zone.filled {
+            border: 2px solid #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .drop-zone.correct {
+            border-color: #4CAF50;
+            background: #c8e6c9;
+            animation: pulse-green 0.5s;
+        }
+
+        .drop-zone.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+            animation: shake 0.5s;
+        }
+
+        .drop-zone.active-step {
+            animation: pulse-highlight 1.5s infinite;
+            border-color: #ff9800;
+        }
+
+        .drop-zone.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @keyframes pulse-highlight {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Number Tiles */
+        .tiles-container {
+            background: #f0f0f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tiles-label {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .number-tiles {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .number-tile {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .number-tile:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .number-tile:active, .number-tile.dragging {
+            cursor: grabbing;
+            transform: scale(1.15);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Messages */
+        .message-area {
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            animation: fadeIn 0.3s;
+        }
+
+        .message.hint {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            font-size: 28px;
+        }
+
+        .message.info {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-check {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #43a047;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .mode-description {
+            color: #666;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Step indicator text */
+        .step-text {
+            text-align: center;
+            font-size: 18px;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+            }
+
+            .cell, .drop-zone {
+                width: 28px;
+                height: 34px;
+                font-size: 18px;
+            }
+
+            .minus-col {
+                width: 22px;
+                height: 34px;
+                font-size: 18px;
+            }
+
+            .down-arrow-cell {
+                width: 28px;
+                height: 34px;
+                font-size: 14px;
+            }
+
+            .number-tile {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+
+            .potence-container {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Jeu de Division</h1>
+
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <h2>Choisis ton mode :</h2>
+            <div class="mode-selector">
+                <div>
+                    <button class="mode-btn" onclick="startGame('guided')">Mode Guidé</button>
+                    <p class="mode-description">Étape par étape</p>
+                </div>
+                <div>
+                    <button class="mode-btn" onclick="startGame('free')">Mode Libre</button>
+                    <p class="mode-description">Remplis tout librement</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="division-board">
+                <!-- Reference Box -->
+                <div class="reference-box">
+                    <div class="title">Les 4 étapes :</div>
+                    <div class="step" data-step="divide">
+                        <span class="step-num">1</span>
+                        <span>Je <strong>DIVISE</strong></span>
+                    </div>
+                    <div class="step" data-step="multiply">
+                        <span class="step-num">2</span>
+                        <span>Je <strong>MULTIPLIE</strong></span>
+                    </div>
+                    <div class="step" data-step="subtract">
+                        <span class="step-num">3</span>
+                        <span>Je <strong>SOUSTRAIS</strong></span>
+                    </div>
+                    <div class="step" data-step="bring-down">
+                        <span class="step-num">4</span>
+                        <span>Je <strong>DESCENDS</strong></span>
+                    </div>
+                    <div style="margin-top: 10px; font-style: italic; color: #666;">
+                        ↩ Je recommence !
+                    </div>
+                </div>
+
+                <!-- Division Potence -->
+                <div class="potence-container">
+                    <div id="potenceArea"></div>
+                </div>
+            </div>
+
+            <!-- Step Text for Guided Mode -->
+            <div id="stepText" class="step-text hidden"></div>
+
+            <!-- Number Tiles -->
+            <div class="tiles-container">
+                <div class="tiles-label">Glisse les chiffres dans les cases :</div>
+                <div class="number-tiles" id="numberTiles"></div>
+            </div>
+
+            <!-- Message Area -->
+            <div class="message-area">
+                <div id="message"></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-container">
+                <button id="checkBtn" class="btn btn-check hidden" onclick="checkAllAnswers()">Vérifier</button>
+                <button class="btn btn-secondary" onclick="resetGame()">Recommencer</button>
+                <button class="btn btn-primary" onclick="newProblem()">Nouvelle Division</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameMode = 'guided'; // 'guided' or 'free'
+        let currentProblem = null;
+        let divisionSteps = [];
+        let currentStepIndex = 0;
+        let currentSubStep = 'divide'; // 'divide', 'multiply', 'subtract', 'bring-down'
+        let dropZones = [];
+
+        // Generate a division problem
+        function generateProblem() {
+            // Generate divisor (1-2 digits)
+            const divisor = Math.floor(Math.random() * 20) + 12; // 12-31 for reasonable problems
+
+            // Generate quotient (2-3 digits to ensure meaningful division)
+            const quotientDigits = Math.floor(Math.random() * 2) + 2; // 2-3 digits
+            const minQuotient = Math.pow(10, quotientDigits - 1);
+            const maxQuotient = Math.pow(10, quotientDigits) - 1;
+            const quotient = Math.floor(Math.random() * (maxQuotient - minQuotient + 1)) + minQuotient;
+
+            // Calculate dividend (may have remainder)
+            const remainder = Math.floor(Math.random() * divisor);
+            const dividend = quotient * divisor + remainder;
+
+            return { dividend, divisor, quotient, remainder };
+        }
+
+        // Calculate all division steps
+        function calculateDivisionSteps(dividend, divisor) {
+            const steps = [];
+            const dividendStr = dividend.toString();
+            const quotientStr = Math.floor(dividend / divisor).toString();
+
+            let currentValue = 0;
+            let position = 0;
+            let quotientIndex = 0;
+
+            while (position < dividendStr.length) {
+                // Build up current value until it's >= divisor
+                currentValue = currentValue * 10 + parseInt(dividendStr[position]);
+                position++;
+
+                // Check if we can divide
+                if (currentValue >= divisor || quotientIndex > 0) {
+                    const quotientDigit = Math.floor(currentValue / divisor);
+                    const product = quotientDigit * divisor;
+                    const newRemainder = currentValue - product;
+
+                    steps.push({
+                        currentValue: currentValue,
+                        quotientDigit: quotientDigit,
+                        product: product,
+                        remainder: newRemainder,
+                        position: position,
+                        bringDown: position < dividendStr.length ? parseInt(dividendStr[position]) : null
+                    });
+
+                    currentValue = newRemainder;
+                    quotientIndex++;
+                }
+            }
+
+            return steps;
+        }
+
+        // Render the division potence with simple matrix layout
+        function renderPotence() {
+            const { dividend, divisor, quotient, remainder } = currentProblem;
+            const dividendStr = dividend.toString();
+            const quotientStr = quotient.toString();
+            const numCols = dividendStr.length;
+
+            // Calculate step positions (which column each step's result ends at)
+            let stepEndPositions = [];
+            let currentVal = 0;
+            for (let i = 0; i < dividendStr.length; i++) {
+                currentVal = currentVal * 10 + parseInt(dividendStr[i]);
+                if (currentVal >= divisor || stepEndPositions.length > 0) {
+                    stepEndPositions.push(i);
+                    currentVal = currentVal % divisor;
+                }
+            }
+
+            // Helper to create a row of cells
+            function makeRow(minusSign, cells) {
+                let row = `<div class="potence-row"><div class="minus-col">${minusSign}</div>`;
+                row += cells.join('');
+                row += '</div>';
+                return row;
+            }
+
+            // Helper to create N empty cells
+            function emptyCells(n) {
+                return Array(n).fill('<div class="cell empty-box"></div>');
+            }
+
+            let html = '<div class="potence-table">';
+            html += '<div class="potence-main">';
+
+            // === ROW 1: Dividend ===
+            let dividendCells = [];
+            for (let i = 0; i < numCols; i++) {
+                dividendCells.push(`<div class="cell given">${dividendStr[i]}</div>`);
+            }
+            html += makeRow('', dividendCells);
+
+            // === Work rows for each step ===
+            divisionSteps.forEach((step, stepIdx) => {
+                const productStr = step.product.toString();
+                const endPos = stepEndPositions[stepIdx];
+
+                // --- Product row (subtraction) ---
+                let productCells = [];
+                for (let col = 0; col < numCols; col++) {
+                    const startCol = endPos - productStr.length + 1;
+                    const digitIdx = col - startCol;
+                    if (digitIdx >= 0 && digitIdx < productStr.length) {
+                        const zoneId = `product-${stepIdx}-${digitIdx}`;
+                        productCells.push(`<div class="drop-zone blue" id="${zoneId}" data-expected="${productStr[digitIdx]}" data-type="product" data-step="${stepIdx}" data-index="${digitIdx}"></div>`);
+                    } else if (col === endPos + 1 && step.bringDown !== null) {
+                        productCells.push('<div class="down-arrow-cell">↓</div>');
+                    } else {
+                        productCells.push('<div class="cell empty-box"></div>');
+                    }
+                }
+                html += makeRow('-', productCells);
+
+                // --- Underline row ---
+                let underlineCells = [];
+                const startCol = endPos - productStr.length + 1;
+                for (let col = 0; col < numCols; col++) {
+                    if (col >= startCol && col <= endPos) {
+                        underlineCells.push('<div class="cell no-border" style="height: 11px; border-bottom: 3px solid #333;"></div>');
+                    } else {
+                        underlineCells.push('<div class="cell no-border" style="height: 11px;"></div>');
+                    }
+                }
+                html += makeRow('', underlineCells);
+
+                // --- Remainder row (subtraction result only, without bring-down) ---
+                if (stepIdx < divisionSteps.length - 1 || step.bringDown !== null) {
+                    const remainderOnly = step.remainder.toString();
+
+                    let remainderCells = [];
+                    for (let col = 0; col < numCols; col++) {
+                        const startCol = endPos - remainderOnly.length + 1;
+                        const digitIdx = col - startCol;
+                        if (digitIdx >= 0 && digitIdx < remainderOnly.length) {
+                            const zoneId = `remainder-${stepIdx}-${digitIdx}`;
+                            remainderCells.push(`<div class="drop-zone" id="${zoneId}" data-expected="${remainderOnly[digitIdx]}" data-type="remainder" data-step="${stepIdx}" data-index="${digitIdx}"></div>`);
+                        } else if (col === endPos + 1 && step.bringDown !== null) {
+                            // Bring-down digit (separate zone with type "bringdown")
+                            const zoneId = `bringdown-${stepIdx}`;
+                            remainderCells.push(`<div class="drop-zone" id="${zoneId}" data-expected="${step.bringDown}" data-type="bringdown" data-step="${stepIdx}" style="border-color: #9C27B0;"></div>`);
+                        } else {
+                            remainderCells.push('<div class="cell empty-box"></div>');
+                        }
+                    }
+                    html += makeRow('', remainderCells);
+                }
+            });
+
+            // === Final remainder row (just the remainder, no verification product) ===
+            const remainderStr = remainder.toString();
+            let finalRemainderCells = [];
+            for (let col = 0; col < numCols; col++) {
+                const startCol = numCols - remainderStr.length;
+                const digitIdx = col - startCol;
+                if (digitIdx >= 0 && digitIdx < remainderStr.length) {
+                    const zoneId = `remainder-final-${digitIdx}`;
+                    finalRemainderCells.push(`<div class="drop-zone" id="${zoneId}" data-expected="${remainderStr[digitIdx]}" data-type="final-remainder" data-index="${digitIdx}" style="border-color: #4CAF50;"></div>`);
+                } else {
+                    finalRemainderCells.push('<div class="cell empty-box"></div>');
+                }
+            }
+            html += makeRow('', finalRemainderCells);
+
+            html += '</div>'; // end potence-main
+
+            // === Right side: separator + divisor/quotient ===
+            html += '<div class="potence-separator"></div>';
+            html += '<div class="potence-right">';
+            html += `<div class="cell given">${divisor}</div>`;
+            html += '<div class="quotient-row">';
+            for (let i = 0; i < quotientStr.length; i++) {
+                const zoneId = `quotient-${i}`;
+                html += `<div class="drop-zone orange" id="${zoneId}" data-expected="${quotientStr[i]}" data-type="quotient" data-index="${i}"></div>`;
+            }
+            html += '</div>';
+            html += '</div>'; // end potence-right
+
+            html += '</div>'; // end potence-table
+
+            document.getElementById('potenceArea').innerHTML = html;
+
+            // Setup drop zones
+            setupDropZones();
+        }
+
+        // Create number tiles
+        function createNumberTiles() {
+            const tilesContainer = document.getElementById('numberTiles');
+            tilesContainer.innerHTML = '';
+
+            for (let i = 0; i <= 9; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'number-tile';
+                tile.textContent = i;
+                tile.draggable = true;
+                tile.dataset.value = i;
+
+                // Drag events
+                tile.addEventListener('dragstart', handleDragStart);
+                tile.addEventListener('dragend', handleDragEnd);
+
+                // Touch events for mobile
+                tile.addEventListener('touchstart', handleTouchStart, { passive: false });
+                tile.addEventListener('touchmove', handleTouchMove, { passive: false });
+                tile.addEventListener('touchend', handleTouchEnd);
+
+                tilesContainer.appendChild(tile);
+            }
+        }
+
+        // Drag and Drop handlers
+        let draggedValue = null;
+        let draggedElement = null;
+        let touchClone = null;
+
+        function handleDragStart(e) {
+            draggedValue = e.target.dataset.value;
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', draggedValue);
+            e.dataTransfer.effectAllowed = 'copy';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedValue = null;
+            draggedElement = null;
+        }
+
+        // Touch handlers for mobile
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            draggedValue = e.target.dataset.value;
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+
+            // Create visual clone
+            touchClone = e.target.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.left = (touch.clientX - 25) + 'px';
+            touchClone.style.top = (touch.clientY - 25) + 'px';
+            touchClone.style.zIndex = '1000';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.opacity = '0.8';
+            document.body.appendChild(touchClone);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+
+            if (touchClone) {
+                touchClone.style.left = (touch.clientX - 25) + 'px';
+                touchClone.style.top = (touch.clientY - 25) + 'px';
+            }
+
+            // Highlight drop zone under finger
+            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+            if (element && element.classList.contains('drop-zone')) {
+                element.classList.add('drag-over');
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+            }
+
+            if (touchClone) {
+                const touch = e.changedTouches[0];
+                const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+                if (element && element.classList.contains('drop-zone')) {
+                    handleDrop(element, draggedValue);
+                }
+
+                document.body.removeChild(touchClone);
+                touchClone = null;
+            }
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('drag-over');
+            });
+
+            draggedValue = null;
+            draggedElement = null;
+        }
+
+        // Setup drop zones
+        function setupDropZones() {
+            dropZones = document.querySelectorAll('.drop-zone');
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    zone.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    const value = e.dataTransfer.getData('text/plain');
+                    handleDrop(zone, value);
+                });
+
+                // Click to clear
+                zone.addEventListener('click', () => {
+                    if (zone.textContent) {
+                        zone.textContent = '';
+                        zone.classList.remove('filled', 'correct', 'incorrect');
+                        if (gameMode === 'guided') {
+                            updateGuidedMode();
+                        }
+                    }
+                });
+            });
+
+            if (gameMode === 'guided') {
+                updateGuidedMode();
+            } else {
+                document.getElementById('checkBtn').classList.remove('hidden');
+            }
+        }
+
+        // Handle drop
+        function handleDrop(zone, value) {
+            // In guided mode, check if this zone is active
+            if (gameMode === 'guided' && !zone.classList.contains('active-step')) {
+                showMessage('Remplis d\'abord les cases actives !', 'hint');
+                return;
+            }
+
+            zone.textContent = value;
+            zone.classList.add('filled');
+
+            if (gameMode === 'guided') {
+                validateGuidedStep(zone, value);
+            }
+        }
+
+        // Guided mode logic
+        function updateGuidedMode() {
+            // Clear all active states
+            dropZones.forEach(zone => {
+                zone.classList.remove('active-step', 'disabled');
+            });
+            document.querySelectorAll('.reference-box .step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Find next empty zone in order
+            const zoneOrder = getZoneOrder();
+            let foundEmpty = false;
+            let currentType = null;
+
+            for (const zoneId of zoneOrder) {
+                const zone = document.getElementById(zoneId);
+                if (zone && !zone.textContent) {
+                    zone.classList.add('active-step');
+                    currentType = zone.dataset.type;
+                    foundEmpty = true;
+                    break;
+                }
+            }
+
+            if (!foundEmpty) {
+                // All filled - check completion
+                checkCompletion();
+                return;
+            }
+
+            // Highlight current step in reference box
+            if (currentType === 'quotient') {
+                highlightStep('divide');
+                showStepText('Divise et trouve le chiffre du quotient');
+            } else if (currentType === 'product') {
+                highlightStep('multiply');
+                showStepText('Multiplie le diviseur par le chiffre du quotient');
+            } else if (currentType === 'remainder') {
+                highlightStep('subtract');
+                showStepText('Soustrais pour trouver le reste');
+            } else if (currentType === 'bringdown') {
+                highlightStep('bring-down');
+                showStepText('Descends le chiffre suivant');
+            } else if (currentType === 'final-remainder') {
+                highlightStep('subtract');
+                showStepText('Calcule le reste final');
+            }
+
+            // Disable non-active zones
+            dropZones.forEach(zone => {
+                if (!zone.classList.contains('active-step') && !zone.textContent) {
+                    zone.classList.add('disabled');
+                }
+            });
+        }
+
+        function getZoneOrder() {
+            const order = [];
+            const quotientLength = currentProblem.quotient.toString().length;
+
+            // Interleave quotient, product, remainder for each step
+            for (let step = 0; step < divisionSteps.length; step++) {
+                // Quotient digit (left to right - one at a time)
+                if (step < quotientLength) {
+                    order.push(`quotient-${step}`);
+                }
+
+                // Product digits (right to left - like multiplication)
+                const productStr = divisionSteps[step].product.toString();
+                for (let i = productStr.length - 1; i >= 0; i--) {
+                    order.push(`product-${step}-${i}`);
+                }
+
+                // Remainder digits (right to left - like subtraction) - just the subtraction result
+                if (divisionSteps[step].bringDown !== null || step < divisionSteps.length - 1) {
+                    const remainderOnly = divisionSteps[step].remainder.toString();
+                    for (let i = remainderOnly.length - 1; i >= 0; i--) {
+                        order.push(`remainder-${step}-${i}`);
+                    }
+
+                    // Bring-down digit (DESCENDS step)
+                    if (divisionSteps[step].bringDown !== null) {
+                        order.push(`bringdown-${step}`);
+                    }
+                }
+            }
+
+            // Final remainder (right to left)
+            const remainderStr = currentProblem.remainder.toString();
+            for (let i = remainderStr.length - 1; i >= 0; i--) {
+                order.push(`remainder-final-${i}`);
+            }
+
+            return order;
+        }
+
+        function highlightStep(stepName) {
+            document.querySelectorAll('.reference-box .step').forEach(step => {
+                step.classList.remove('active');
+            });
+            const step = document.querySelector(`.reference-box .step[data-step="${stepName}"]`);
+            if (step) {
+                step.classList.add('active');
+            }
+        }
+
+        function showStepText(text) {
+            const stepText = document.getElementById('stepText');
+            stepText.textContent = text;
+            stepText.classList.remove('hidden');
+        }
+
+        function validateGuidedStep(zone, value) {
+            const expected = zone.dataset.expected;
+
+            if (value === expected) {
+                zone.classList.add('correct');
+                zone.classList.remove('incorrect');
+                clearMessage();
+
+                setTimeout(() => {
+                    updateGuidedMode();
+                }, 300);
+            } else {
+                zone.classList.add('incorrect');
+                zone.classList.remove('correct');
+                showMessage('Essaie encore !', 'hint');
+
+                setTimeout(() => {
+                    zone.textContent = '';
+                    zone.classList.remove('filled', 'incorrect');
+                }, 800);
+            }
+        }
+
+        // Check all answers (free mode)
+        function checkAllAnswers() {
+            let allCorrect = true;
+
+            dropZones.forEach(zone => {
+                const expected = zone.dataset.expected;
+                const value = zone.textContent;
+
+                if (value === expected) {
+                    zone.classList.add('correct');
+                    zone.classList.remove('incorrect');
+                } else {
+                    zone.classList.add('incorrect');
+                    zone.classList.remove('correct');
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                showMessage('Bravo !', 'success');
+            } else {
+                showMessage('Quelques erreurs... Essaie encore !', 'hint');
+            }
+        }
+
+        // Check completion
+        function checkCompletion() {
+            let allCorrect = true;
+
+            dropZones.forEach(zone => {
+                if (zone.textContent !== zone.dataset.expected) {
+                    allCorrect = false;
+                }
+            });
+
+            if (allCorrect) {
+                document.getElementById('stepText').classList.add('hidden');
+                showMessage('Bravo !', 'success');
+            }
+        }
+
+        // Message helpers
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        function clearMessage() {
+            const msg = document.getElementById('message');
+            msg.textContent = '';
+            msg.className = '';
+        }
+
+        // Game controls
+        function startGame(mode) {
+            gameMode = mode;
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+
+            if (mode === 'free') {
+                document.getElementById('checkBtn').classList.remove('hidden');
+                document.getElementById('stepText').classList.add('hidden');
+            } else {
+                document.getElementById('checkBtn').classList.add('hidden');
+            }
+
+            newProblem();
+        }
+
+        function newProblem() {
+            currentProblem = generateProblem();
+            divisionSteps = calculateDivisionSteps(currentProblem.dividend, currentProblem.divisor);
+            currentStepIndex = 0;
+
+            clearMessage();
+            createNumberTiles();
+            renderPotence();
+
+            console.log('Problem:', currentProblem);
+            console.log('Steps:', divisionSteps);
+        }
+
+        function resetGame() {
+            clearMessage();
+            renderPotence();
+        }
+
+        // Initialize
+        createNumberTiles();
+    </script>
+</body>
+</html>
